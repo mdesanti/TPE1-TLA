@@ -7,7 +7,7 @@
 #define GRAMATICA_H_
 
 #include "../defs.h"
-#include "automata.h"
+#include "../automata/automata.h"
 
 typedef struct gramatica *gramatica_t;
 

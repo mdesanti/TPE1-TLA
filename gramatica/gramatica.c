@@ -34,9 +34,7 @@ gramatica_t nuevaGramatica(void) {
 	}
 	g->noTerminales = NULL;
 	g->terminales = NULL;
-	g->simInicial = NULL;
 	g->producciones = NULL;
-	g->tipo = NULL;
 	return g;
 }
 
