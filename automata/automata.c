@@ -121,7 +121,7 @@ gramatica_t crearGramatica(automata_t automata) {
 }
 
 void crearArchivoDOT(automata_t automata) {
-	FILE * dotFile = fopen("/tmp/prueba.dot", "a");
+	FILE * dotFile = fopen("./prueba.dot", "a");
 	char * write = "digraph{\nrankdir = \"LR\";";
 	fprintf(dotFile, "digraph{\nrankdir = \"LR\"\n");
 	int i = 0;

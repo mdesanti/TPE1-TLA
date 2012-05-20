@@ -142,6 +142,13 @@ automata_t convertiraAutomata(gramatica_t gramatica) {
 	return NULL;
 }
 
+/*
+ * Retorna 1 si hubo algun cambio en el conjunto de producciones
+ * */
+int eliminarProduccionesUnitarias(gramatica_t gramatica) {
+
+}
+
 int isNoTerminal(gramatica_t g, char c) {
 	int aux;
 	if ((aux = strchr(g->noTerminales, c)) == NULL) {
