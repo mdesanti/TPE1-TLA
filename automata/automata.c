@@ -38,6 +38,7 @@ void imprimirEstado(nodo_t estado);
 void imprimirTransicion(transicion_t transicion);
 void analizarEstado(gramatica_t gramatica, nodo_t estado);
 void agregarTerminalAutomata(automata_t automata, terminal_t terminal);
+void imprimirTransiciones(FILE * dotFile, nodo_t estado);
 
 static void Error(const char* s) {
 	fprintf(stderr, s);
@@ -103,11 +104,11 @@ gramatica_t crearGramatica(automata_t automata) {
 	gramatica_t gramatica = nuevaGramatica();
 	int i = 0;
 
-	for(i = 0; i < automata->cantDeTerminales; i++) {
+	for (i = 0; i < automata->cantDeTerminales; i++) {
 		agregarTerminal(gramatica, automata->terminales[i]);
 	}
 
-	for(i = 0; i < automata->cantDeEstados; i++) {
+	for (i = 0; i < automata->cantDeEstados; i++) {
 		nodo_t estado = (automata->estados)[i];
 		agregarNoTerminal(gramatica, 'A' + estado->nroNodo);
 	}
@@ -117,6 +118,32 @@ gramatica_t crearGramatica(automata_t automata) {
 	}
 
 	return gramatica;
+}
+
+void crearArchivoDOT(automata_t automata) {
+	FILE * dotFile = fopen("/tmp/prueba.dot", "a");
+	char * write = "digraph{\nrankdir = \"LR\";";
+	fprintf(dotFile, "digraph{\nrankdir = \"LR\"\n");
+	int i = 0;
+	for (i = 0; i < automata->cantDeEstados; i++) {
+		nodo_t estado = (automata->estados[i]);
+		char * shape;
+		if (estado->final) {
+			shape = "doublecircle";
+		} else {
+			shape = "circle";
+		}
+
+		fprintf(dotFile, "node[shape = %s] Node%d [label=\"%d\"];\n", shape,
+				estado->nroNodo, estado->nroNodo);
+	}
+
+	for (i = 0; i < automata->cantDeEstados; i++) {
+		imprimirTransiciones(dotFile, (automata->estados)[i]);
+	}
+
+	fprintf(dotFile, "}");
+	fclose(dotFile);
 }
 
 void imprimirAutomata(automata_t automata) {
@@ -130,35 +157,49 @@ void imprimirAutomata(automata_t automata) {
  * ***************De aca en adelante, funciones privadas para este .c*************************
  * */
 
+void imprimirTransiciones(FILE * dotFile, nodo_t estado) {
+	int trans = 0;
+
+	char *  muestra = "Node0->Node1 [label=\"a\"];";
+	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
+		transicion_t transicion = (estado->transiciones)[trans];
+		fprintf(dotFile, "Node%d->Node%d [label=\"%c\"];\n", estado->nroNodo, (transicion.destino)->nroNodo, transicion.terminal);
+	}
+}
+
 void analizarEstado(gramatica_t gramatica, nodo_t estado) {
 	int trans = 0;
 
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
 		transicion_t transicion = (estado->transiciones)[trans];
-		agregarProduccion(gramatica, 'A' + estado->nroNodo, transicion.terminal, 'A' + (transicion.destino)->nroNodo);
+		agregarProduccion(gramatica, 'A' + estado->nroNodo, transicion.terminal,
+				'A' + (transicion.destino)->nroNodo);
 	}
 }
 
 void agregarTerminalAutomata(automata_t automata, terminal_t terminal) {
 
-	if(automata->terminales == NULL) {
-		if((automata->terminales = malloc(10*sizeof(terminal_t))) == NULL) {
+	if (automata->terminales == NULL) {
+		if ((automata->terminales = malloc(10 * sizeof(terminal_t))) == NULL) {
 			Error("No se puede agregar el no terminal\n");
-		} else if((automata->cantDeTerminales % 10) == 0) {
-			if((automata->terminales = realloc(automata->terminales, (automata->cantDeEstados + 10)*sizeof(char))) == NULL)
+		} else if ((automata->cantDeTerminales % 10) == 0) {
+			if ((automata->terminales = realloc(automata->terminales,
+					(automata->cantDeEstados + 10) * sizeof(char))) == NULL
+			)
 				Error("No se puede agregar el no terminal\n");
 		}
 	}
 
-	int cantTerm = automata->cantDeTerminales, i = 0;;
+	int cantTerm = automata->cantDeTerminales, i = 0;
+	;
 
-	for(i = 0; i < cantTerm; i++) {
-		if(automata->terminales[i] == terminal)
+	for (i = 0; i < cantTerm; i++) {
+		if (automata->terminales[i] == terminal)
 			return;
 	}
 
 	(automata->terminales)[i] = terminal;
-	automata->cantDeTerminales ++;
+	automata->cantDeTerminales++;
 }
 
 void imprimirEstado(nodo_t estado) {

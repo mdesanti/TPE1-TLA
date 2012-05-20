@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
 	agregarTransicion(automata, 2, 1, 'a');
 
 	imprimirAutomata(automata);
+	crearArchivoDOT(automata);
 
 	gramatica_t gramatica = crearGramatica(automata);
 	imprimirGramatica(gramatica);

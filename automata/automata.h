@@ -25,4 +25,6 @@ void imprimirAutomata(automata_t automata);
 
 gramatica_t crearGramatica(automata_t automata);
 
+void crearArchivoDOT(automata_t automata);
+
 #endif /* AUTOMATA_H_ */
