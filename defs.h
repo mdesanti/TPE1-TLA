@@ -24,7 +24,11 @@ typedef struct automata *automata_t;
 
 typedef struct transicion transicion_t;
 
-#define GLI	1;
-#define GLD	2;
+
+#define GLI	1
+#define GLD	2
+
+#define GRAMATICA 1
+#define AUTOMATA 2
 
 #endif /* DEFS_H_ */

@@ -82,6 +82,36 @@ void agregarTerminal(gramatica_t gramatica, terminal_t elemento) {
 	printf("%s\n", gramatica->terminales);
 }
 
+void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
+	char pIz = cadena[0];
+	char term , noTerm;
+	int termino = 0, indice = 3;
+
+	if(pIz == '/') {
+		Error("Lambda no puede ser la parte izquierda de una produccion\n");
+	}
+	if(cadena[1] != '-') {
+		Error("Debe haber un solo simbolo en la parte izquierda de una produccion\n");
+	}
+
+	while(!termino) {
+		term = 0, noTerm = 0;
+		if(cadena[indice] != NULL && (islower(cadena[indice]) || (cadena[indice]) == '/')) {
+			term = (cadena[indice++]);
+		}
+		if(cadena[indice] != NULL && isupper(cadena[indice])) {
+			noTerm = (cadena[indice++]);
+		}
+		if(cadena[indice] != NULL && cadena[indice] == '|') {
+			agregarProduccion(gramatica, pIz, term, noTerm);
+			indice++;
+		} else {
+			termino = 1;
+			agregarProduccion(gramatica, pIz, term, noTerm);
+		}
+	}
+}
+
 void agregarProduccion(gramatica_t gramatica, noTerminal_t pIz, terminal_t t,
 		noTerminal_t nT) {
 	if (!isNoTerminal(gramatica, pIz) || !isTerminal(gramatica, t)

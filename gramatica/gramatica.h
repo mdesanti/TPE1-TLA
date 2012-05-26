@@ -37,4 +37,6 @@ int isTerminal(gramatica_t g, char c);
 
 void imprimirGramatica(gramatica_t g);
 
+void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena);
+
 #endif /* GRAMATICA_H_ */
