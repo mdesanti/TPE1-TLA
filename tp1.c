@@ -31,7 +31,14 @@ int analizarEntrada(int argc, char ** argv) {
 		}
 
 		yylex();
-		imprimirGramatica(gramatica);
+		switch (tipoDeArchivo) {
+		case AUTOMATA:
+			imprimirAutomata(automata);
+			break;
+		case GRAMATICA:
+			imprimirGramatica(gramatica);
+			break;
+		}
 		return EXIT_SUCCESS;
 	} else {
 		printf(

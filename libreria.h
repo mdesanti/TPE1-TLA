@@ -10,5 +10,8 @@
 
 char * reemplazar(char * cadena, char * original, char * reemplazo);
 char * quitarEspacios(char * cadena);
+char * copiar(char * str);
+char * primeraParte(char * transicion);
+char * segundaParte(char * transicion);
 
 #endif /* LIBRERIA_H_ */

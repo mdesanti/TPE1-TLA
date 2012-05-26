@@ -17,9 +17,11 @@ typedef struct transicion transicion_t;
 
 automata_t nuevoAutomata();
 
-void agregarEstado(automata_t automata, int nroEstado, int estadoFinal);
+void agregarEstado(automata_t automata, char * nombre, int nroEstado,
+		int estadoFinal);
 
-void agregarTransicion(automata_t automata, int estadoOrigen, int estadoDestino, terminal_t terminal);
+void agregarTransicion(automata_t automata, char * estadoOrigen,
+		char * estadoDestino, terminal_t terminal);
 
 void imprimirAutomata(automata_t automata);
 

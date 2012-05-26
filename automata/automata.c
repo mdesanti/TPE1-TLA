@@ -13,6 +13,7 @@ struct nodo {
 	estado_t nroNodo;
 	int cantDeTransiciones;
 	transicion_t *transiciones;
+	char * nombre;
 	int final;
 };
 
@@ -29,11 +30,11 @@ struct automata {
 	terminal_t *terminales;
 };
 
-nodo_t nuevoEstado(int nroEstado, int estadoFinal);
+nodo_t nuevoEstado(char * nombre, int nroEstado, int estadoFinal);
 transicion_t nuevaTransicion(nodo_t destino, terminal_t terminal);
 void agregarTransicionInterna(nodo_t origen, nodo_t destino,
 		terminal_t terminal);
-nodo_t obtenerNodo(automata_t automata, estado_t estadoOrigen);
+nodo_t obtenerNodo(automata_t automata, char * nombre);
 void imprimirEstado(nodo_t estado);
 void imprimirTransicion(transicion_t transicion);
 void analizarEstado(gramatica_t gramatica, nodo_t estado);
@@ -60,13 +61,13 @@ automata_t nuevoAutomata() {
 	return automata;
 }
 
-void agregarEstado(automata_t automata, int nroEstado, int estadoFinal) {
+void agregarEstado(automata_t automata,char * nombre,  int nroEstado, int estadoFinal) {
 
 	if (automata->estados == NULL) {
 		if ((automata->estados = malloc(2 * sizeof(nodo_t*))) == NULL) {
 			Error("No hay lugar para otro estado\n");
 		} else {
-			automata->estados[0] = nuevoEstado(nroEstado, estadoFinal);
+			automata->estados[0] = nuevoEstado(nombre, nroEstado, estadoFinal);
 			automata->estados[1] = NULL;
 			automata->cantDeEstados++;
 		}
@@ -77,16 +78,15 @@ void agregarEstado(automata_t automata, int nroEstado, int estadoFinal) {
 			Error("No hay lugar para otro estado\n");
 		}
 
-		automata->estados[automata->cantDeEstados] = nuevoEstado(nroEstado,
+		automata->estados[automata->cantDeEstados] = nuevoEstado(nombre, nroEstado,
 				estadoFinal);
 		automata->cantDeEstados++;
 		automata->estados[automata->cantDeEstados] = NULL;
 
-		return;
 	}
 }
 
-void agregarTransicion(automata_t automata, int estadoOrigen, int estadoDestino,
+void agregarTransicion(automata_t automata, char * estadoOrigen, char * estadoDestino,
 		terminal_t terminal) {
 
 	agregarTerminalAutomata(automata, terminal);
@@ -252,11 +252,11 @@ void agregarTransicionInterna(nodo_t origen, nodo_t destino,
 	return;
 }
 
-nodo_t obtenerNodo(automata_t automata, estado_t estadoOrigen) {
+nodo_t obtenerNodo(automata_t automata, char * nombre) {
 	nodo_t *estados = automata->estados;
 
 	int i = 0;
-	while (estados[i] != NULL && estados[i]->nroNodo != estadoOrigen) {
+	while (estados[i] != NULL && strcmp(estados[i]->nombre, nombre)) {
 		i++;
 	}
 
@@ -267,7 +267,7 @@ nodo_t obtenerNodo(automata_t automata, estado_t estadoOrigen) {
 	return estados[i];
 }
 
-nodo_t nuevoEstado(int nroEstado, int estadoFinal) {
+nodo_t nuevoEstado(char * nombre, int nroEstado, int estadoFinal) {
 	nodo_t ret;
 
 	if ((ret = malloc(sizeof(struct nodo))) == NULL) {
@@ -277,6 +277,7 @@ nodo_t nuevoEstado(int nroEstado, int estadoFinal) {
 	ret->cantDeTransiciones = 0;
 	ret->final = estadoFinal;
 	ret->nroNodo = nroEstado;
+	ret->nombre = nombre;
 	ret->transiciones = NULL;
 
 	return ret;

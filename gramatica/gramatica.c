@@ -22,6 +22,8 @@ struct gramatica {
 	tipoG tipo;
 };
 
+int esProduccionValida(gramatica_t gramatica, char pIz, char elem1, char elem2);
+
 static void Error(const char* s) {
 	fprintf(stderr, s);
 	exit(EXIT_FAILURE);
@@ -84,38 +86,44 @@ void agregarTerminal(gramatica_t gramatica, terminal_t elemento) {
 
 void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 	char pIz = cadena[0];
-	char term , noTerm;
+	char term = 0, noTerm = 0;
 	int termino = 0, indice = 3;
 
-	if(pIz == '/') {
+	if (pIz == '/') {
 		Error("Lambda no puede ser la parte izquierda de una produccion\n");
 	}
-	if(cadena[1] != '-') {
-		Error("Debe haber un solo simbolo en la parte izquierda de una produccion\n");
+	if (cadena[1] != '-') {
+		Error(
+				"Debe haber un solo simbolo en la parte izquierda de una produccion\n");
 	}
 
-	while(!termino) {
-		term = 0, noTerm = 0;
-		if(cadena[indice] != NULL && (islower(cadena[indice]) || (cadena[indice]) == '/')) {
+	while (!termino) {
+		if (cadena[indice] != NULL
+				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			term = (cadena[indice++]);
 		}
-		if(cadena[indice] != NULL && isupper(cadena[indice])) {
+		if (cadena[indice] != NULL
+				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			noTerm = (cadena[indice++]);
 		}
-		if(cadena[indice] != NULL && cadena[indice] == '|') {
+		if (cadena[indice] != NULL && cadena[indice] == '|') {
 			agregarProduccion(gramatica, pIz, term, noTerm);
+			term = 0, noTerm = 0;
 			indice++;
-		} else {
+		} else if (cadena[indice] == NULL) {
 			termino = 1;
 			agregarProduccion(gramatica, pIz, term, noTerm);
+			term = 0, noTerm = 0;
+		} else {
+			Error(
+					"Hay mas de dos elementos en la parte derecha de la produccion\n");
 		}
 	}
 }
 
 void agregarProduccion(gramatica_t gramatica, noTerminal_t pIz, terminal_t t,
 		noTerminal_t nT) {
-	if (!isNoTerminal(gramatica, pIz) || !isTerminal(gramatica, t)
-			|| !isNoTerminal(gramatica, nT)) {
+	if (!esProduccionValida(gramatica, pIz, t, nT)) {
 		Error(
 				"Un elemento de una produccion no pertenece a los terminales o no terminales\n");
 	}
@@ -192,6 +200,32 @@ int isTerminal(gramatica_t g, char c) {
 	if ((aux = strchr(g->terminales, c)) == NULL) {
 		return 0;
 	}
+	return 1;
+}
+
+int esProduccionValida(gramatica_t gramatica, char pIz, char elem1, char elem2) {
+
+	//parte izquierda debe ser no terminal
+	if (!isNoTerminal(gramatica, pIz))
+		return 0;
+	//los elementos de la parte derecha o bien son terminal o no terminal o lambda
+	if (!isNoTerminal(gramatica, elem1) && !isTerminal(gramatica, elem1) && elem1 != '\\')
+		return 0;
+	if (!isNoTerminal(gramatica, elem2) && !isTerminal(gramatica, elem2) && elem2 != '\\')
+		return 0;
+	if(elem1 == 0 && elem2 == 0)
+		return 0;
+	if(elem1 == 0 || elem2 == 0)
+		return 1;
+	if(elem1 == '\\' || elem2 == '\\')
+		return 1;
+	//ambos elementos de la parte derecha no pueden ser terminales a la vez
+	if(isTerminal(gramatica, elem1) && isTerminal(gramatica, elem2))
+		return 0;
+	//ambos elementos de la parte derecha no pueden ser no terminales a la vez
+	if(isNoTerminal(gramatica, elem1) && isNoTerminal(gramatica, elem2))
+		return 0;
+
 	return 1;
 }
 
