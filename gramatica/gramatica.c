@@ -39,6 +39,7 @@ gramatica_t nuevaGramatica(void) {
 	g->noTerminales = NULL;
 	g->terminales = NULL;
 	g->producciones = NULL;
+	g->tipo = -1;
 	return g;
 }
 
@@ -93,7 +94,7 @@ void agregarTerminal(gramatica_t gramatica, terminal_t elemento) {
 
 void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 	char pIz = cadena[0];
-	char term = 0, noTerm = 0;
+	char term = 0, noTerm = 0, seteada = 0;
 	int termino = 0, indice = 3;
 
 	if (pIz == '/') {
@@ -108,6 +109,12 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 		if (cadena[indice] != NULL
 				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			term = (cadena[indice++]);
+			if(isupper(term) && gramatica->tipo == -1) {
+				setearTipoG(gramatica, GLI);
+				seteada = 1;
+			}
+			else if(gramatica->tipo == -1)
+				setearTipoG(gramatica, GLD);
 		}
 		if (cadena[indice] != NULL
 				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
