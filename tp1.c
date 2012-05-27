@@ -38,6 +38,7 @@ int analizarEntrada(int argc, char ** argv) {
 			gram = crearGramatica(automata);
 			imprimirAutomata(automata);
 			imprimirGramatica(gram);
+			crearArchivoGR(gram);
 			break;
 		case GRAMATICA:
 			autom = convertiraAutomata(gramatica);

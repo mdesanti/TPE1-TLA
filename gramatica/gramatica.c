@@ -109,11 +109,10 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 		if (cadena[indice] != NULL
 				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			term = (cadena[indice++]);
-			if(isupper(term) && gramatica->tipo == -1) {
+			if (isupper(term) && gramatica->tipo == -1) {
 				setearTipoG(gramatica, GLI);
 				seteada = 1;
-			}
-			else if(gramatica->tipo == -1)
+			} else if (gramatica->tipo == -1)
 				setearTipoG(gramatica, GLD);
 		}
 		if (cadena[indice] != NULL
@@ -446,7 +445,10 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 }
 
 automata_t convertiraAutomata(gramatica_t g) {
-	if (!isNormal(g) || g->tipo != GLD) {
+	if (g->tipo != GLD) {
+		g = pasarAFormaNDerecha(g);
+	}
+	if (!isNormal(g)) {
 		normalizar(g);
 	}
 	int i = 0;
@@ -481,8 +483,8 @@ automata_t convertiraAutomata(gramatica_t g) {
 		if (g->producciones[i]->noTerminal != NULL
 				&& g->producciones[i]->terminal != NULL) {
 			agregarTransicion(automata,
-					estados[obtEstado(g, g->producciones[i]->parteIzquierda)],
-					estados[obtEstado(g, g->producciones[i]->noTerminal)],
+					crearNombreEstado(estados[obtEstado(g, g->producciones[i]->parteIzquierda)]),
+					crearNombreEstado(estados[obtEstado(g, g->producciones[i]->noTerminal)]),
 					g->producciones[i]->terminal);
 		}
 	}
@@ -553,8 +555,6 @@ int esProduccionValida(gramatica_t gramatica, char pIz, char elem1, char elem2) 
 		return 0;
 	if (!isNoTerminal(gramatica, elem2) && !isTerminal(gramatica, elem2)
 			&& elem2 != '\\')
-		return 0;
-	if (elem1 == 0 && elem2 == 0)
 		return 0;
 	if (elem1 == 0 || elem2 == 0)
 		return 1;

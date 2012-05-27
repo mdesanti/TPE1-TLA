@@ -89,7 +89,12 @@ char * segundaParte(char * transicion) {
 }
 
 char * crearNombreEstado(int nroEstado) {
-	int digits = log10((double)nroEstado) + 1;
+	int digits;
+	if(nroEstado == 0) {
+		digits = 1;
+	} else {
+		digits = log10((double)nroEstado) + 1;
+	}
 	char * ret = malloc((5+digits)*sizeof(char));
 	ret[0] = 'N';
 	ret[1] = 'o';
