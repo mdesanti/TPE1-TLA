@@ -96,17 +96,15 @@ char * crearNombreEstado(int nroEstado) {
 		digits = log10((double)nroEstado) + 1;
 	}
 	char * ret = malloc((5+digits)*sizeof(char));
+	char * nro = malloc(2*sizeof(char));
 	ret[0] = 'N';
 	ret[1] = 'o';
 	ret[2] = 'd';
 	ret[3] = 'e';
-	int i = 3;
-	while(digits > 0) {
-		int div = digits/10;
-		ret[i++] = '0' + div;
-		digits /= 10;
-	}
-	ret[i] = NULL;
+	ret[4] = '\0';
+	nro[0] = nroEstado + '0';
+	nro[1] = '\0';
+	strcat(ret, nro);
 
 	return ret;
 

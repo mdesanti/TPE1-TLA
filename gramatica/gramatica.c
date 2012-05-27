@@ -453,15 +453,12 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 }
 
 automata_t convertiraAutomata(gramatica_t g) {
-	imprimirGramatica(g);
 	if (g->tipo != GLD) {
 		g = pasarAFormaNDerecha(g);
 	}
-	imprimirGramatica(g);
 	if (!isNormal(g)) {
 		normalizar(g);
 	}
-	imprimirGramatica(g);
 	int i = 0;
 	int j = 0;
 	int cont = 1;
@@ -482,7 +479,8 @@ automata_t convertiraAutomata(gramatica_t g) {
 		}
 		if (g->noTerminales[i] != g->simInicial) {
 			estados[i] = cont;
-			agregarEstado(automata, crearNombreEstado(cont), cont, final);
+			char * nombre = crearNombreEstado(cont);
+			agregarEstado(automata, nombre, cont, final);
 			cont++;
 		} else {
 			estados[i] = 0;
@@ -495,10 +493,12 @@ automata_t convertiraAutomata(gramatica_t g) {
 				&& g->producciones[i]->terminal != NULL) {
 			agregarTransicion(
 					automata,
-					crearNombreEstado(
+					recuperarNombre(
+							automata,
 							estados[obtEstado(g,
 									g->producciones[i]->parteIzquierda)]),
-					crearNombreEstado(
+					recuperarNombre(
+							automata,
 							estados[obtEstado(g, g->producciones[i]->noTerminal)]),
 					g->producciones[i]->terminal);
 		}

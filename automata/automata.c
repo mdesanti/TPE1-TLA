@@ -124,7 +124,7 @@ gramatica_t crearGramatica(automata_t automata) {
 }
 
 void crearArchivoDOT(automata_t automata) {
-	FILE * dotFile = fopen("./prueba.dot", "a");
+	FILE * dotFile = fopen("automata.dot", "a");
 	char * write = "digraph{\nrankdir = \"LR\";";
 	fprintf(dotFile, "digraph{\nrankdir = \"LR\"\n");
 	int i = 0;
@@ -234,7 +234,9 @@ void imprimirEstado(nodo_t estado) {
 	int trans = 0;
 
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
-		printf("delta(%d, %c) = %d\n", estado->nroNodo, estado->transiciones[trans].terminal, estado->transiciones[trans].destino->nroNodo);
+		printf("delta(%d, %c) = %d\n", estado->nroNodo,
+				estado->transiciones[trans].terminal,
+				estado->transiciones[trans].destino->nroNodo);
 	}
 }
 
@@ -306,4 +308,13 @@ nodo_t nuevoEstado(char * nombre, int nroEstado, int estadoFinal) {
 	ret->transiciones = NULL;
 
 	return ret;
+}
+
+char * recuperarNombre(automata_t automata, int nroDeEstado) {
+	int i = 0;
+	for (i = 0; i < automata->cantDeEstados; i++) {
+		if (automata->estados[i]->nroNodo == nroDeEstado)
+			return automata->estados[i]->nombre;
+	}
+	return NULL;
 }
