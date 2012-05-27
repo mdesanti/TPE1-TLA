@@ -42,7 +42,7 @@ int analizarEntrada(int argc, char ** argv) {
 			break;
 		case GRAMATICA:
 			autom = convertiraAutomata(gramatica);
-			imprimirAutomata(automata);
+			imprimirAutomata(autom);
 			break;
 		}
 		return EXIT_SUCCESS;
