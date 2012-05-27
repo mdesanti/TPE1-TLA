@@ -111,7 +111,11 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 			if (isupper(cadena[indice])) {
 				noTerm = cadena[indice++];
 			} else {
-				term = (cadena[indice++]);
+				if (cadena[indice] == '\\') {
+					term = NULL;
+					indice++;
+				} else
+					term = (cadena[indice++]);
 			}
 			if (isupper(term) && gramatica->tipo == -1) {
 				setearTipoG(gramatica, GLI);
@@ -124,17 +128,21 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 			if (isupper(cadena[indice])) {
 				noTerm = cadena[indice++];
 			} else {
-				term = (cadena[indice++]);
+				if (cadena[indice] == '\\') {
+					term = NULL;
+					indice++;
+				} else
+					term = (cadena[indice++]);
 			}
 		}
 		if (cadena[indice] != NULL && cadena[indice] == '|') {
 			agregarProduccion(gramatica, pIz, term, noTerm);
-			term = 0, noTerm = 0;
+			term = NULL, noTerm = NULL;
 			indice++;
 		} else if (cadena[indice] == NULL) {
 			termino = 1;
 			agregarProduccion(gramatica, pIz, term, noTerm);
-			term = 0, noTerm = 0;
+			term = NULL, noTerm = NULL;
 		} else {
 			Error(
 					"Hay mas de dos elementos en la parte derecha de la produccion\n");
@@ -211,7 +219,8 @@ void normalizar(gramatica_t g) {
 		cant++;
 	}
 
-	//printf("primero: elimino producciones unitarias\n");
+	imprimirGramatica(g);
+	printf("primero: elimino producciones unitarias\n");
 	while (flag == 1) {
 		flag = 0;
 		for (i = 0; i < cant; i++) {
@@ -227,8 +236,9 @@ void normalizar(gramatica_t g) {
 			}
 		}
 	}
-
-	//printf("segundo: elimino producciones lambda\n");
+	imprimirGramatica(g);
+//	printf("%d\n", csant);
+	printf("segundo: elimino producciones lambda\n");
 	for (i = 0; i < cant; i++) {
 		if (g->producciones[i]->terminal == NULL
 				&& g->producciones[i]->noTerminal == NULL) {
@@ -247,8 +257,9 @@ void normalizar(gramatica_t g) {
 			cant--;
 		}
 	}
+	imprimirGramatica(g);
 
-	//printf("tercero: elimino improductivos\n");
+	printf("tercero: elimino improductivos\n");
 	noTerminal_t * productivos;
 	char aux[2];
 	productivos = malloc(sizeof(noTerminal_t) * 1);
@@ -269,7 +280,7 @@ void normalizar(gramatica_t g) {
 			}
 		}
 	}
-	//agrego a la lista de productivos a los que tienen a algun no terminal productivo en alguna produccion
+//	agrego a la lista de productivos a los que tienen a algun no terminal productivo en alguna produccion
 	for (i = 0; i < cant; i++) {
 		if (!strchr(productivos, g->producciones[i]->parteIzquierda)) {
 			for (j = 0; j < strlen(productivos); j++) {
@@ -299,14 +310,15 @@ void normalizar(gramatica_t g) {
 			eliminarNoTerminal(g, g->noTerminales[i]);
 		}
 	}
+	imprimirGramatica(g);
 
-	//printf("cuarto: elimino inalcanzables\n");
+	printf("cuarto: elimino inalcanzables\n");
 	noTerminal_t * alcanzables;
 	alcanzables = malloc(sizeof(noTerminal_t) * 2);
 	alcanzables[0] = g->simInicial;
 	alcanzables[1] = '\0';
 	flag = 1;
-	//printf("\tidentifico los alcanzables\n");
+	printf("\tidentifico los alcanzables\n");
 	while (flag == 1) {
 		flag = 0;
 		for (i = 0; i < cant; i++) {
@@ -326,21 +338,25 @@ void normalizar(gramatica_t g) {
 			}
 		}
 	}
-	//printf("\telimino los incalcanzables (si los hay)\n");
+	imprimirGramatica(g);
+	printf("\telimino los incalcanzables (si los hay)\n");
 	for (i = 0; i < strlen(g->noTerminales); i++) {
 		if (!strchr(alcanzables, g->noTerminales[i])) {
-			for (j = 0; j < cant; j++) {
+			while (g->producciones[j] != NULL) {
 				if (g->producciones[j]->parteIzquierda == g->noTerminales[i]
 						|| g->producciones[j]->noTerminal == g->noTerminales[i]) {
 					eliminarProduccion(g, g->producciones[j]);
 					cant--;
+				} else {
+					j++;
 				}
 			}
 			eliminarNoTerminal(g, g->noTerminales[i]);
 		}
 	}
+	imprimirGramatica(g);
 
-	//printf("quinto: paso a forma normal\n");
+	printf("quinto: paso a forma normal\n");
 	noTerminal_t nuevoNT = 'A';
 	flag = 1;
 	while (flag == 1) {
@@ -357,6 +373,7 @@ void normalizar(gramatica_t g) {
 			g->producciones[i]->noTerminal = nuevoNT;
 		}
 	}
+	imprimirGramatica(g);
 
 }
 
@@ -453,12 +470,15 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 }
 
 automata_t convertiraAutomata(gramatica_t g) {
+	imprimirGramatica(g);
 	if (g->tipo != GLD) {
 		g = pasarAFormaNDerecha(g);
 	}
+	imprimirGramatica(g);
 	if (!isNormal(g)) {
 		normalizar(g);
 	}
+	imprimirGramatica(g);
 	int i = 0;
 	int j = 0;
 	int cont = 1;

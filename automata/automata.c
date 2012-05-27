@@ -124,7 +124,7 @@ gramatica_t crearGramatica(automata_t automata) {
 }
 
 void crearArchivoDOT(automata_t automata) {
-	FILE * dotFile = fopen("automata.dot", "a");
+	FILE * dotFile = fopen("automata.dot", "w");
 	char * write = "digraph{\nrankdir = \"LR\";";
 	fprintf(dotFile, "digraph{\nrankdir = \"LR\"\n");
 	int i = 0;
@@ -184,8 +184,15 @@ void imprimirTransiciones(FILE * dotFile, nodo_t estado) {
 	char * muestra = "Node0->Node1 [label=\"a\"];";
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
 		transicion_t transicion = (estado->transiciones)[trans];
-		fprintf(dotFile, "Node%d->Node%d [label=\"%c\"];\n", estado->nroNodo,
-				(transicion.destino)->nroNodo, transicion.terminal);
+		if (transicion.terminal != '\\') {
+			fprintf(dotFile, "Node%d->Node%d [label=\"%c\"];\n",
+					estado->nroNodo, (transicion.destino)->nroNodo,
+					transicion.terminal);
+		} else {
+			fprintf(dotFile, "Node%d->Node%d [label=\"\\\\\"];\n",
+					estado->nroNodo, (transicion.destino)->nroNodo,
+					transicion.terminal);
+		}
 	}
 }
 

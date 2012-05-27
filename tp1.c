@@ -43,7 +43,8 @@ int analizarEntrada(int argc, char ** argv) {
 		case GRAMATICA:
 			autom = convertiraAutomata(gramatica);
 			imprimirAutomata(autom);
-			crearArchivoDOT(automata);
+			crearArchivoDOT(autom);
+			system("dot -Tpng automata.dot -o salida.png");
 			break;
 		}
 		return EXIT_SUCCESS;
