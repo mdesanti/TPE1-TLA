@@ -344,13 +344,12 @@ void normalizar(gramatica_t g) {
 	printf("\telimino los incalcanzables (si los hay)\n");
 	for (i = 0; i < strlen(g->noTerminales); i++) {
 		if (!strchr(alcanzables, g->noTerminales[i])) {
-			while (g->producciones[j] != NULL) {
+			for(j=0; j < cant; j++) {
 				if (g->producciones[j]->parteIzquierda == g->noTerminales[i]
 						|| g->producciones[j]->noTerminal == g->noTerminales[i]) {
 					eliminarProduccion(g, g->producciones[j]);
 					cant--;
-				} else {
-					j++;
+					j--;
 				}
 			}
 			eliminarNoTerminal(g, g->noTerminales[i]);
