@@ -92,6 +92,9 @@ void agregarTransicion(automata_t automata, char * estadoOrigen,
 
 	if (terminal != '\\')
 		agregarTerminalAutomata(automata, terminal);
+	else {
+		agregarTerminalAutomata(automata, '\\');
+	}
 
 	nodo_t origen = obtenerNodo(automata, estadoOrigen);
 	nodo_t destino = obtenerNodo(automata, estadoDestino);

@@ -241,7 +241,7 @@ void normalizar(gramatica_t g) {
 	printf("segundo: elimino producciones lambda\n");
 	for (i = 0; i < cant; i++) {
 		if (g->producciones[i]->terminal == NULL
-				&& g->producciones[i]->noTerminal == NULL) {
+				&& g->producciones[i]->noTerminal == NULL && g->producciones[i]->parteIzquierda != g->simInicial) {
 			auxNT = g->producciones[i]->parteIzquierda;
 			for (j = 0; j < cant; j++) {
 				if (g->producciones[j]->terminal != NULL
@@ -305,9 +305,11 @@ void normalizar(gramatica_t g) {
 						|| g->producciones[j]->noTerminal == g->noTerminales[i]) {
 					eliminarProduccion(g, g->producciones[j]);
 					cant--;
+					j--;
 				}
 			}
 			eliminarNoTerminal(g, g->noTerminales[i]);
+			i--;
 		}
 	}
 	imprimirGramatica(g);
@@ -370,7 +372,7 @@ void normalizar(gramatica_t g) {
 	agregarNoTerminal(g, nuevoNT);
 	agregarProduccion(g, nuevoNT, NULL, NULL);
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->noTerminal == NULL) {
+		if (g->producciones[i]->noTerminal == NULL && g->producciones[i]->terminal != NULL) {
 			g->producciones[i]->noTerminal = nuevoNT;
 		}
 	}
