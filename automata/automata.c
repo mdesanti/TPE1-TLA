@@ -61,7 +61,8 @@ automata_t nuevoAutomata() {
 	return automata;
 }
 
-void agregarEstado(automata_t automata,char * nombre,  int nroEstado, int estadoFinal) {
+void agregarEstado(automata_t automata, char * nombre, int nroEstado,
+		int estadoFinal) {
 
 	if (automata->estados == NULL) {
 		if ((automata->estados = malloc(2 * sizeof(nodo_t*))) == NULL) {
@@ -78,18 +79,19 @@ void agregarEstado(automata_t automata,char * nombre,  int nroEstado, int estado
 			Error("No hay lugar para otro estado\n");
 		}
 
-		automata->estados[automata->cantDeEstados] = nuevoEstado(nombre, nroEstado,
-				estadoFinal);
+		automata->estados[automata->cantDeEstados] = nuevoEstado(nombre,
+				nroEstado, estadoFinal);
 		automata->cantDeEstados++;
 		automata->estados[automata->cantDeEstados] = NULL;
 
 	}
 }
 
-void agregarTransicion(automata_t automata, char * estadoOrigen, char * estadoDestino,
-		terminal_t terminal) {
+void agregarTransicion(automata_t automata, char * estadoOrigen,
+		char * estadoDestino, terminal_t terminal) {
 
-	agregarTerminalAutomata(automata, terminal);
+	if (terminal != '\\')
+		agregarTerminalAutomata(automata, terminal);
 
 	nodo_t origen = obtenerNodo(automata, estadoOrigen);
 	nodo_t destino = obtenerNodo(automata, estadoDestino);
@@ -102,6 +104,7 @@ void agregarTransicion(automata_t automata, char * estadoOrigen, char * estadoDe
 
 gramatica_t crearGramatica(automata_t automata) {
 	gramatica_t gramatica = nuevaGramatica();
+	setearTipoG(gramatica, GLD);
 	int i = 0;
 
 	for (i = 0; i < automata->cantDeTerminales; i++) {
@@ -148,6 +151,24 @@ void crearArchivoDOT(automata_t automata) {
 
 void imprimirAutomata(automata_t automata) {
 	int i = 0;
+	printf("Simbolos terminales:\n");
+	for (i = 0; i < automata->cantDeTerminales; i++) {
+		printf("\t%c\n", automata->terminales[i]);
+	}
+	printf("Estados:\n");
+	for (i = 0; i < automata->cantDeEstados; i++) {
+		printf("\t%s", automata->estados[i]->nombre);
+		if (automata->estados[i]->nroNodo == 0)
+			printf(" - Es el estado inicial\n");
+		else
+			printf("\n");
+	}
+	printf("Estados finales:\n");
+	for (i = 0; i < automata->cantDeEstados; i++) {
+		if (automata->estados[i]->final)
+			printf("\t%s\n", automata->estados[i]->nombre);
+	}
+	printf("Transiciones:\n");
 	for (i = 0; i < automata->cantDeEstados; i++) {
 		imprimirEstado(automata->estados[i]);
 	}
@@ -160,19 +181,26 @@ void imprimirAutomata(automata_t automata) {
 void imprimirTransiciones(FILE * dotFile, nodo_t estado) {
 	int trans = 0;
 
-	char *  muestra = "Node0->Node1 [label=\"a\"];";
+	char * muestra = "Node0->Node1 [label=\"a\"];";
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
 		transicion_t transicion = (estado->transiciones)[trans];
-		fprintf(dotFile, "Node%d->Node%d [label=\"%c\"];\n", estado->nroNodo, (transicion.destino)->nroNodo, transicion.terminal);
+		fprintf(dotFile, "Node%d->Node%d [label=\"%c\"];\n", estado->nroNodo,
+				(transicion.destino)->nroNodo, transicion.terminal);
 	}
 }
 
 void analizarEstado(gramatica_t gramatica, nodo_t estado) {
 	int trans = 0;
+	char terminal;
 
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
 		transicion_t transicion = (estado->transiciones)[trans];
-		agregarProduccion(gramatica, 'A' + estado->nroNodo, transicion.terminal,
+		if (transicion.terminal == '\\') {
+			terminal = 0;
+		} else {
+			terminal = transicion.terminal;
+		}
+		agregarProduccion(gramatica, 'A' + estado->nroNodo, terminal,
 				'A' + (transicion.destino)->nroNodo);
 	}
 }
@@ -203,13 +231,10 @@ void agregarTerminalAutomata(automata_t automata, terminal_t terminal) {
 }
 
 void imprimirEstado(nodo_t estado) {
-	printf("Nodo nro %d\n", estado->nroNodo);
-	printf("\t Tiene %d transiciones\n", estado->cantDeTransiciones);
 	int trans = 0;
 
 	for (trans = 0; trans < estado->cantDeTransiciones; trans++) {
-		printf("\t\t");
-		imprimirTransicion(estado->transiciones[trans]);
+		printf("delta(%d, %c) = %d\n", estado->nroNodo, estado->transiciones[trans].terminal, estado->transiciones[trans].destino->nroNodo);
 	}
 }
 

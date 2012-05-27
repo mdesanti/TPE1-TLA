@@ -11,6 +11,8 @@ extern gramatica;
 extern tipoDeArchivo;
 
 int analizarEntrada(int argc, char ** argv) {
+	gramatica_t gram;
+	automata_t autom;
 	if (argc == 2) {
 		char * archivo = argv[1];
 		tipoDeArchivo = 0;
@@ -33,10 +35,13 @@ int analizarEntrada(int argc, char ** argv) {
 		yylex();
 		switch (tipoDeArchivo) {
 		case AUTOMATA:
+			gram = crearGramatica(automata);
 			imprimirAutomata(automata);
+			imprimirGramatica(gram);
 			break;
 		case GRAMATICA:
-			imprimirGramatica(gramatica);
+			autom = convertiraAutomata(gramatica);
+			imprimirAutomata(automata);
 			break;
 		}
 		return EXIT_SUCCESS;
