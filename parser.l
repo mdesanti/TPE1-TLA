@@ -50,7 +50,6 @@ gramatica_t gramatica;
                         	char * sinLlaves = reemplazar(yytext, "{", "");
                         	char * sinComas = reemplazar(sinLlaves, ",", "");
                         	char * sinEspacios = quitarEspacios(sinComas);
-                        	printf("Produccion: %s\n", sinEspacios);
                         	agregarProduccionDesdeCadena(gramatica, sinEspacios);
                         	
                         } else { REJECT; }
@@ -71,13 +70,11 @@ gramatica_t gramatica;
                         if (tipoDeArchivo == GRAMATICA && estado == SIMBOLOINICIAL) {
                         	char * sinComas = reemplazar(yytext, ",", "");
                         	char * sinEspacios = quitarEspacios(sinComas);
-                        	printf("Simbolo inicial: %s\n", sinEspacios);
                         	setearSimboloIncial(gramatica, *sinEspacios);
 							estado++;
                         } else if (tipoDeArchivo == GRAMATICA && estado == NOTERMINALES) {
                         	char * sinComas = reemplazar(yytext, ",", "");
                         	char * sinEspacios = quitarEspacios(sinComas);
-                        	printf("No terminal: %s\n", sinEspacios);
                         	agregarNoTerminal(gramatica, *sinEspacios);
                         } else { REJECT; }
                       }
@@ -86,12 +83,10 @@ gramatica_t gramatica;
                         if (tipoDeArchivo == GRAMATICA && estado == NOTERMINALES) {
                         	char * sinComas = reemplazar(yytext, ",", "");
                         	char * sinEspacios = quitarEspacios(sinComas);
-                        	printf("No terminal: %s\n", sinEspacios);
                         	agregarNoTerminal(gramatica, *sinEspacios);
                         } else if (tipoDeArchivo == GRAMATICA && estado == TERMINALES) { 
                         	char * sinComas = reemplazar(yytext, ",", "");
                         	char * sinEspacios = quitarEspacios(sinComas);
-                        	printf("Terminal: %s\n", sinEspacios);
                         	agregarTerminal(gramatica, *sinEspacios);
                         } else { REJECT; }
                       }
@@ -104,7 +99,6 @@ gramatica_t gramatica;
 
 [ ]*\}[ ]*\)          {;
                         if (tipoDeArchivo == GRAMATICA && estado == PRODUCCIONES) { 
-                        	printf("Termino la gramatica\n");
                         }  else { REJECT; }
                       }
                       

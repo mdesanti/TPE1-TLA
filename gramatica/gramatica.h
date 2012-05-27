@@ -19,23 +19,29 @@ void agregarNoTerminal(gramatica_t gramatica, noTerminal_t elemento);
 
 void agregarTerminal(gramatica_t gramatica, terminal_t elemento);
 
-void agregarProduccion(gramatica_t gramatica, noTerminal_t pIz, terminal_t t, noTerminal_t nT);
+int agregarProduccion(gramatica_t gramatica, noTerminal_t pIz, terminal_t t, noTerminal_t nT);
 
 void setearSimboloIncial(gramatica_t gramatica, noTerminal_t elemento);
 
 void setearTipoG(gramatica_t gramatica, tipoG tipo);
 
-gramatica_t normalizar(gramatica_t gramatica);
+void normalizar(gramatica_t g);
 
 gramatica_t pasarAFormaNDerecha(gramatica_t gramatica);
 
-automata_t convertiraAutomata(gramatica_t gramatica);
+void crearArchivoGR(gramatica_t g);
+
+//automata_t convertiraAutomata(gramatica_t gramatica);
 
 int isNoTerminal(gramatica_t g, char c);
 
 int isTerminal(gramatica_t g, char c);
 
 void imprimirGramatica(gramatica_t g);
+
+int isNormal(gramatica_t g);
+
+int obtenerProducciones(gramatica_t g, noTerminal_t pIz, noTerminal_t noTer);
 
 void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena);
 

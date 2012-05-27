@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <math.h>
 
 char * reemplazar(char * cadena, char * original, char *reemplazo) {
 
@@ -85,4 +86,23 @@ char * segundaParte(char * transicion) {
 	ret[j] = NULL;
 
 	return ret;
+}
+
+char * crearNombreEstado(int nroEstado) {
+	int digits = log10((double)nroEstado) + 1;
+	char * ret = malloc((5+digits)*sizeof(char));
+	ret[0] = 'N';
+	ret[1] = 'o';
+	ret[2] = 'd';
+	ret[3] = 'e';
+	int i = 3;
+	while(digits > 0) {
+		int div = digits/10;
+		ret[i++] = '0' + div;
+		digits /= 10;
+	}
+	ret[i] = NULL;
+
+	return ret;
+
 }

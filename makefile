@@ -1,6 +1,6 @@
 tp1 : tp
 	gcc -g -m32 -o  salida aux/tp.o aux/lex.o \
-	 aux/libreria.o aux/gramatica.o aux/automata.o
+	 aux/libreria.o aux/gramatica.o aux/automata.o -lm
 tp : clean
 	mkdir aux
 	flex --outfile=lex.gen.c parser.l
@@ -8,7 +8,7 @@ tp : clean
 	gcc -g -m32 -o aux/gramatica.o -c gramatica/gramatica.c 
 	gcc -g -m32 -o aux/automata.o -c automata/automata.c 
 	gcc -g -m32 -o aux/tp.o -c tp1.c 
-	gcc -g -m32 -o aux/libreria.o -c libreria.c
+	gcc -g -m32 -o aux/libreria.o -c libreria.c -lm
 clean:
 	rm -rf aux
 	rm -f lex.gen.c
