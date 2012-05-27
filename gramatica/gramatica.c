@@ -352,6 +352,7 @@ void normalizar(gramatica_t g) {
 				}
 			}
 			eliminarNoTerminal(g, g->noTerminales[i]);
+			i--;
 		}
 	}
 	imprimirGramatica(g);
@@ -485,8 +486,9 @@ automata_t convertiraAutomata(gramatica_t g) {
 	int cant = 0;
 	int final = 0;
 	automata_t automata = nuevoAutomata();
-	int estados[strlen(g->noTerminales)];for
-(	i=0; g->producciones[i] != NULL; i++) {
+	int * estados = malloc(strlen(g->noTerminales)*sizeof(int) + 1);
+	estados[strlen(g->noTerminales)] = NULL;
+	for(i=0; g->producciones[i] != NULL; i++) {
 		cant++;
 	}
 	for (i = 0; i < strlen(g->noTerminales); i++) {
@@ -511,15 +513,11 @@ automata_t convertiraAutomata(gramatica_t g) {
 	for (i = 0; i < cant; i++) {
 		if (g->producciones[i]->noTerminal != NULL
 				&& g->producciones[i]->terminal != NULL) {
-			agregarTransicion(
-					automata,
-					recuperarNombre(
-							automata,
-							estados[obtEstado(g,
-									g->producciones[i]->parteIzquierda)]),
-					recuperarNombre(
-							automata,
-							estados[obtEstado(g, g->producciones[i]->noTerminal)]),
+			char * origen = recuperarNombre(automata,
+					estados[obtEstado(g, g->producciones[i]->parteIzquierda)]);
+			char * destino = recuperarNombre(automata,
+					estados[obtEstado(g, g->producciones[i]->noTerminal)]);
+			agregarTransicion(automata, origen, destino,
 					g->producciones[i]->terminal);
 		}
 	}
