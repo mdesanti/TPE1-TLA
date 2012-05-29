@@ -30,5 +30,6 @@ gramatica_t crearGramatica(automata_t automata);
 void crearArchivoDOT(automata_t automata);
 
 char * recuperarNombre(automata_t automata, int nroDeEstado);
+int validarEstadoInicial(automata_t automata);
 
 #endif /* AUTOMATA_H_ */

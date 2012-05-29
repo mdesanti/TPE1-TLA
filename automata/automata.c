@@ -129,7 +129,7 @@ gramatica_t crearGramatica(automata_t automata) {
 void crearArchivoDOT(automata_t automata) {
 	FILE * dotFile = fopen("automata.dot", "w");
 	char * write = "digraph{\nrankdir = \"LR\";";
-	fprintf(dotFile, "digraph{\nrankdir = \"LR\"\n");
+	fprintf(dotFile, "digraph{\nrankdir = \"LR\";\n");
 	int i = 0;
 	for (i = 0; i < automata->cantDeEstados; i++) {
 		nodo_t estado = (automata->estados[i]);
@@ -327,4 +327,15 @@ char * recuperarNombre(automata_t automata, int nroDeEstado) {
 			return automata->estados[i]->nombre;
 	}
 	return NULL;
+}
+
+int validarEstadoInicial(automata_t automata) {
+	int i = 0;
+	for(i = 0; i < automata->cantDeEstados; i++) {
+		if(automata->estados[i]->nroNodo == 0) {
+			return 1;
+		}
+	}
+	return 0;
+
 }

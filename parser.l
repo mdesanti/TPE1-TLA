@@ -120,7 +120,12 @@ doublecircle          {
 							es_final = 1; estado++; 
 						} else { REJECT; } 
 					  }
-\][ ]*                { if (tipoDeArchivo == AUTOMATA && estado == FORMA_F) { estado = NOMBRE_DE_ESTADO_I; } else { REJECT; } }
+\][ ]*                { if (tipoDeArchivo == AUTOMATA && estado == FORMA_F) { 
+							estado = NOMBRE_DE_ESTADO_I; 
+						} else {
+							REJECT; 
+							}
+					  }
 
 [A-Za-z0-9]+[ ]*      { 
 						if (tipoDeArchivo == AUTOMATA && estado == NOMBRE_DE_ESTADO_I) 
@@ -129,8 +134,11 @@ doublecircle          {
 							estado = ETIQUETA_I; 
 						} else { REJECT; } 
 					  }
-\[label=\"            { if (tipoDeArchivo == AUTOMATA && estado == ETIQUETA_I) { estado = ETIQUETA_F; } 
-                   else if (tipoDeArchivo == AUTOMATA && estado == TRANSICION) { estado = TRANSICION_ETIQUETA_I; } else { REJECT; } }
+\[label=\"            { if (tipoDeArchivo == AUTOMATA && estado == ETIQUETA_I) {
+							 estado = ETIQUETA_F; 
+						} else if (tipoDeArchivo == AUTOMATA && estado == TRANSICION){
+							estado = TRANSICION_ETIQUETA_I; 
+						} else { REJECT; } }
 [A-Za-z0-9/\\]+        { 
 						if (tipoDeArchivo == AUTOMATA && estado == ETIQUETA_F) 
 						{ 

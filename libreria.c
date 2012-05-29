@@ -14,13 +14,13 @@ char * reemplazar(char * cadena, char * original, char *reemplazo) {
 		if (cadena[i] != *original) {
 			ret[j++] = cadena[i];
 		} else {
-			if (*reemplazo != "") {
+			if ((*reemplazo) != "") {
 				ret[j++] = *reemplazo;
 			}
 		}
 		i++;
 	}
-	ret[j] = NULL;
+	ret[j] = '\0';
 
 	return ret;
 }
@@ -36,7 +36,7 @@ char * quitarEspacios(char * cadena) {
 		}
 		i++;
 	}
-	ret[j] = NULL;
+	ret[j] = '\0';
 
 	return ret;
 }
@@ -45,10 +45,10 @@ char * copiar(char * str) {
 	int largo = strlen(str), i = 0;
 	char * ret = malloc(largo * sizeof(char));
 
-	while (str[i] != NULL) {
+	while (str[i] != '\0') {
 		ret[i] = str[i++];
 	}
-	ret[i] = NULL;
+	ret[i] = '\0';
 	return ret;
 }
 
@@ -63,27 +63,27 @@ char * primeraParte(char * transicion) {
 		}
 		ret[i] = sinEspacios[i++];
 	}
-	ret[i] = NULL;
+	ret[i] = '\0';
 
 	return ret;
 }
 
 char * segundaParte(char * transicion) {
 	char * sinEspacios = quitarEspacios(transicion);
-	char * ret = NULL;
+	char * ret = '\0';
 	int i = 0, j = 0;
 
 	while(sinEspacios[i] != '>')
 		i++;
 	i++;
 
-	while (sinEspacios[i] != NULL) {
+	while (sinEspacios[i] != '\0') {
 		if ((j % 10) == 0) {
 			ret = realloc(ret, (j + 10) * sizeof(char));
 		}
 		ret[j++] = sinEspacios[i++];
 	}
-	ret[j] = NULL;
+	ret[j] = '\0';
 
 	return ret;
 }

@@ -25,6 +25,10 @@ struct gramatica {
 
 int esProduccionValida(gramatica_t gramatica, char pIz, char elem1, char elem2);
 int obtEstado(gramatica_t g, noTerminal_t noTer);
+void eliminarProduccion(gramatica_t g, produccion_t p);
+void eliminarNoTerminal(gramatica_t g, noTerminal_t noT);
+void imprimirProducciones(gramatica_t g, noTerminal_t pIz);
+void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile);
 
 static void Error(const char* s) {
 	fprintf(stderr, s);
@@ -45,7 +49,7 @@ gramatica_t nuevaGramatica(void) {
 
 void agregarNoTerminal(gramatica_t gramatica, noTerminal_t elemento) {
 	if (!isupper(elemento)) {
-		Error("los elementos no terminales tienen que estar en mayusculas");
+		Error("los elementos no terminales tienen que estar en mayusculas\n");
 	}
 
 	noTerminal_t *noTer = gramatica->noTerminales;
@@ -70,7 +74,7 @@ void agregarNoTerminal(gramatica_t gramatica, noTerminal_t elemento) {
 
 void agregarTerminal(gramatica_t gramatica, terminal_t elemento) {
 	if (!islower(elemento)) {
-		Error("los elementos terminales tienen que estar en minusculas");
+		Error("los elementos terminales tienen que estar en minusculas\n");
 	}
 	terminal_t *ter = gramatica->terminales;
 	char aux[] = { elemento, '\0' };
@@ -106,13 +110,13 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 	}
 
 	while (!termino) {
-		if (cadena[indice] != NULL
+		if (cadena[indice] != '\0'
 				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			if (isupper(cadena[indice])) {
 				noTerm = cadena[indice++];
 			} else {
 				if (cadena[indice] == '\\') {
-					term = NULL;
+					term = '\0';
 					indice++;
 				} else
 					term = (cadena[indice++]);
@@ -123,26 +127,26 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 			} else if (gramatica->tipo == -1)
 				setearTipoG(gramatica, GLD);
 		}
-		if (cadena[indice] != NULL
+		if (cadena[indice] != '\0'
 				&& (isalpha(cadena[indice]) || cadena[indice] == '\\')) {
 			if (isupper(cadena[indice])) {
 				noTerm = cadena[indice++];
 			} else {
 				if (cadena[indice] == '\\') {
-					term = NULL;
+					term = '\0';
 					indice++;
 				} else
 					term = (cadena[indice++]);
 			}
 		}
-		if (cadena[indice] != NULL && cadena[indice] == '|') {
+		if (cadena[indice] != '\0' && cadena[indice] == '|') {
 			agregarProduccion(gramatica, pIz, term, noTerm);
-			term = NULL, noTerm = NULL;
+			term = '\0', noTerm = '\0';
 			indice++;
-		} else if (cadena[indice] == NULL) {
+		} else if (cadena[indice] == '\0') {
 			termino = 1;
 			agregarProduccion(gramatica, pIz, term, noTerm);
-			term = NULL, noTerm = NULL;
+			term = '\0', noTerm = '\0';
 		} else {
 			Error(
 					"Hay mas de dos elementos en la parte derecha de la produccion\n");
@@ -219,13 +223,13 @@ void normalizar(gramatica_t g) {
 		cant++;
 	}
 
-	imprimirGramatica(g);
-	printf("primero: elimino producciones unitarias\n");
+//	imprimirGramatica(g);
+//	printf("primero: elimino producciones unitarias\n");
 	while (flag == 1) {
 		flag = 0;
 		for (i = 0; i < cant; i++) {
-			if (g->producciones[i]->terminal == NULL
-					&& g->producciones[i]->noTerminal != NULL) {
+			if (g->producciones[i]->terminal == '\0'
+					&& g->producciones[i]->noTerminal != '\0') {
 				flag = 1;
 				aux2 = obtenerProducciones(g,
 						g->producciones[i]->parteIzquierda,
@@ -236,18 +240,18 @@ void normalizar(gramatica_t g) {
 			}
 		}
 	}
-	imprimirGramatica(g);
+//	imprimirGramatica(g);
 //	printf("%d\n", csant);
-	printf("segundo: elimino producciones lambda\n");
+//	printf("segundo: elimino producciones lambda\n");
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->terminal == NULL
-				&& g->producciones[i]->noTerminal == NULL && g->producciones[i]->parteIzquierda != g->simInicial) {
+		if (g->producciones[i]->terminal == '\0'
+				&& g->producciones[i]->noTerminal == '\0' && g->producciones[i]->parteIzquierda != g->simInicial) {
 			auxNT = g->producciones[i]->parteIzquierda;
 			for (j = 0; j < cant; j++) {
-				if (g->producciones[j]->terminal != NULL
+				if (g->producciones[j]->terminal != '\0'
 						&& g->producciones[j]->noTerminal == auxNT) {
 					agregarProduccion(g, g->producciones[j]->parteIzquierda,
-							g->producciones[j]->terminal, NULL);
+							g->producciones[j]->terminal, '\0');
 					cant++;
 					//g->producciones[j]->noTerminal = NULL;
 				}
@@ -257,9 +261,9 @@ void normalizar(gramatica_t g) {
 			cant--;
 		}
 	}
-	imprimirGramatica(g);
+//	imprimirGramatica(g);
 
-	printf("tercero: elimino improductivos\n");
+//	printf("tercero: elimino improductivos\n");
 	noTerminal_t * productivos;
 	char aux[2];
 	productivos = malloc(sizeof(noTerminal_t) * 1);
@@ -267,13 +271,13 @@ void normalizar(gramatica_t g) {
 	//agrego a la lista de productivos a los que tienen un terminal en alguna produccion
 	for (i = 0; i < cant; i++) {
 		if (!strchr(productivos, g->producciones[i]->parteIzquierda)) {
-			if (g->producciones[i]->terminal != NULL
-					&& g->producciones[i]->noTerminal == NULL) {
+			if (g->producciones[i]->terminal != '\0'
+					&& g->producciones[i]->noTerminal == '\0') {
 				aux[0] = g->producciones[i]->parteIzquierda;
 				aux[1] = '\0';
 				if ((productivos = realloc(productivos,
 						(strlen(productivos) + 1) * sizeof(noTerminal_t)))
-						== NULL) {
+						== '\0') {
 					Error("No hay lugar para otro elemento\n");
 				}
 				productivos = strcat(productivos, aux);
@@ -312,15 +316,15 @@ void normalizar(gramatica_t g) {
 			i--;
 		}
 	}
-	imprimirGramatica(g);
+//	imprimirGramatica(g);
 
-	printf("cuarto: elimino inalcanzables\n");
+//	printf("cuarto: elimino inalcanzables\n");
 	noTerminal_t * alcanzables;
 	alcanzables = malloc(sizeof(noTerminal_t) * 2);
 	alcanzables[0] = g->simInicial;
 	alcanzables[1] = '\0';
 	flag = 1;
-	printf("\tidentifico los alcanzables\n");
+//	printf("\tidentifico los alcanzables\n");
 	while (flag == 1) {
 		flag = 0;
 		for (i = 0; i < cant; i++) {
@@ -340,8 +344,8 @@ void normalizar(gramatica_t g) {
 			}
 		}
 	}
-	imprimirGramatica(g);
-	printf("\telimino los incalcanzables (si los hay)\n");
+//	imprimirGramatica(g);
+//	printf("\telimino los incalcanzables (si los hay)\n");
 	for (i = 0; i < strlen(g->noTerminales); i++) {
 		if (!strchr(alcanzables, g->noTerminales[i])) {
 			for(j=0; j < cant; j++) {
@@ -356,9 +360,9 @@ void normalizar(gramatica_t g) {
 			i--;
 		}
 	}
-	imprimirGramatica(g);
+//	imprimirGramatica(g);
 
-	printf("quinto: paso a forma normal\n");
+//	printf("quinto: paso a forma normal\n");
 	noTerminal_t nuevoNT = 'A';
 	flag = 1;
 	while (flag == 1) {
@@ -369,13 +373,13 @@ void normalizar(gramatica_t g) {
 		}
 	}
 	agregarNoTerminal(g, nuevoNT);
-	agregarProduccion(g, nuevoNT, NULL, NULL);
+	agregarProduccion(g, nuevoNT, '\0', '\0');
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->noTerminal == NULL && g->producciones[i]->terminal != NULL) {
+		if (g->producciones[i]->noTerminal == '\0' && g->producciones[i]->terminal != '\0') {
 			g->producciones[i]->noTerminal = nuevoNT;
 		}
 	}
-	imprimirGramatica(g);
+//	imprimirGramatica(g);
 
 }
 
@@ -383,7 +387,7 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 	if (g->tipo == GLD) {
 		return g;
 	} else if (g->tipo != GLI) {
-		Error("La tipo de la gramatica no es un tipo valido");
+		Error("La tipo de la gramatica no es un tipo valido\n");
 	}
 	int i = 0;
 	int cant = 0;
@@ -395,11 +399,11 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 	}
 
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->noTerminal == NULL
-				&& g->producciones[i]->terminal == NULL) {
+		if (g->producciones[i]->noTerminal == '\0'
+				&& g->producciones[i]->terminal == '\0') {
 			cantLambda++;
-		} else if (g->producciones[i]->noTerminal == NULL
-				&& g->producciones[i]->terminal != NULL) {
+		} else if (g->producciones[i]->noTerminal == '\0'
+				&& g->producciones[i]->terminal != '\0') {
 			flagTer = 1;
 		}
 	}
@@ -416,11 +420,11 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 
 	if (flagTer == 1) {
 		agregarNoTerminal(g, nuevoNT);
-		cant = cant + agregarProduccion(g, nuevoNT, NULL, NULL);
+		cant = cant + agregarProduccion(g, nuevoNT, '\0', '\0');
 		cantLambda++;
 		for (i = 0; i < cant; i++) {
-			if (g->producciones[i]->noTerminal == NULL
-					&& g->producciones[i]->terminal != NULL) {
+			if (g->producciones[i]->noTerminal == '\0'
+					&& g->producciones[i]->terminal != '\0') {
 				g->producciones[i]->noTerminal = nuevoNT;
 			}
 		}
@@ -428,19 +432,19 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 
 	if (cantLambda == 0) {
 		agregarNoTerminal(g, nuevoNT);
-		cant = cant + agregarProduccion(g, nuevoNT, NULL, NULL);
+		cant = cant + agregarProduccion(g, nuevoNT, '\0', '\0');
 		for (i = 0; i < cant; i++) {
-			if (g->producciones[i]->noTerminal == NULL
-					&& g->producciones[i]->terminal != NULL) {
+			if (g->producciones[i]->noTerminal == '\0'
+					&& g->producciones[i]->terminal != '\0') {
 				g->producciones[i]->noTerminal = nuevoNT;
 			}
 		}
 	} else if (cantLambda > 1) {
 		agregarNoTerminal(g, nuevoNT);
-		cant = cant + agregarProduccion(g, nuevoNT, NULL, NULL);
+		cant = cant + agregarProduccion(g, nuevoNT, '\0', '\0');
 		for (i = 0; i < cant; i++) {
-			if (g->producciones[i]->noTerminal == NULL
-					&& g->producciones[i]->terminal == NULL) {
+			if (g->producciones[i]->noTerminal == '\0'
+					&& g->producciones[i]->terminal == '\0') {
 				g->producciones[i]->noTerminal = nuevoNT;
 			}
 		}
@@ -456,8 +460,8 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 	}
 
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->noTerminal == NULL
-				&& g->producciones[i]->terminal == NULL) {
+		if (g->producciones[i]->noTerminal == '\0'
+				&& g->producciones[i]->terminal == '\0') {
 			setearSimboloIncial(nuevaG, g->producciones[i]->parteIzquierda);
 		} else {
 			agregarProduccion(nuevaG, g->producciones[i]->noTerminal,
@@ -465,22 +469,19 @@ gramatica_t pasarAFormaNDerecha(gramatica_t g) {
 					g->producciones[i]->parteIzquierda);
 		}
 	}
-	agregarProduccion(nuevaG, g->simInicial, NULL, NULL);
+	agregarProduccion(nuevaG, g->simInicial, '\0', '\0');
 	setearTipoG(nuevaG, GLD);
 
 	return nuevaG;
 }
 
 automata_t convertiraAutomata(gramatica_t g) {
-	imprimirGramatica(g);
 	if (g->tipo != GLD) {
 		g = pasarAFormaNDerecha(g);
 	}
-	imprimirGramatica(g);
 	if (!isNormal(g)) {
 		normalizar(g);
 	}
-	imprimirGramatica(g);
 	int i = 0;
 	int j = 0;
 	int cont = 1;
@@ -488,15 +489,15 @@ automata_t convertiraAutomata(gramatica_t g) {
 	int final = 0;
 	automata_t automata = nuevoAutomata();
 	int * estados = malloc(strlen(g->noTerminales)*sizeof(int) + 1);
-	estados[strlen(g->noTerminales)] = NULL;
-	for(i=0; g->producciones[i] != NULL; i++) {
+	estados[strlen(g->noTerminales)] = '\0';
+	for(i=0; g->producciones[i] != '\0'; i++) {
 		cant++;
 	}
 	for (i = 0; i < strlen(g->noTerminales); i++) {
 		for (j = 0; j < cant; j++) {
 			if (g->producciones[j]->parteIzquierda == g->noTerminales[i]
-					&& g->producciones[j]->terminal == NULL
-					&& g->producciones[j]->noTerminal == NULL) {
+					&& g->producciones[j]->terminal == '\0'
+					&& g->producciones[j]->noTerminal == '\0') {
 				final = 1;
 			}
 		}
@@ -507,13 +508,13 @@ automata_t convertiraAutomata(gramatica_t g) {
 			cont++;
 		} else {
 			estados[i] = 0;
-			agregarEstado(automata, crearNombreEstado(0), 0, final);
+			agregarEstado(automata, (char *)crearNombreEstado(0), 0, final);
 		}
 		final = 0;
 	}
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->noTerminal != NULL
-				&& g->producciones[i]->terminal != NULL) {
+		if (g->producciones[i]->noTerminal != '\0'
+				&& g->producciones[i]->terminal != '\0') {
 			char * origen = recuperarNombre(automata,
 					estados[obtEstado(g, g->producciones[i]->parteIzquierda)]);
 			char * destino = recuperarNombre(automata,
@@ -563,16 +564,16 @@ void crearArchivoGR(gramatica_t g) {
 }
 
 int isNoTerminal(gramatica_t g, char c) {
-	int aux;
-	if ((aux = strchr(g->noTerminales, c)) == NULL) {
+	char * aux;
+	if ((aux = strchr(g->noTerminales, c)) == '\0') {
 		return 0;
 	}
 	return 1;
 }
 
 int isTerminal(gramatica_t g, char c) {
-	int aux;
-	if ((aux = strchr(g->terminales, c)) == NULL) {
+	char * aux;
+	if ((aux = strchr(g->terminales, c)) == '\0') {
 		return 0;
 	}
 	return 1;
@@ -608,6 +609,12 @@ void imprimirGramatica(gramatica_t g) {
 	int i, j, cant;
 	cant = 0;
 	noTerminal_t auxNT;
+	char * tipo;
+	if(g->tipo == GLI)
+		tipo = "Lineal izquierda";
+	else
+		tipo = "Lineal derecha";
+	printf("Es una gramatica del tipo %s\n", tipo);
 	printf("G=({");
 	for (i = 0; i < strlen(g->noTerminales) - 1; i++) {
 		printf("%c,", g->noTerminales[i]);
@@ -640,10 +647,10 @@ int isNormal(gramatica_t g) {
 	}
 
 	for (i = 0; i < cant; i++) {
-		if ((g->producciones[i]->terminal == NULL
-				&& g->producciones[i]->noTerminal != NULL)
-				|| (g->producciones[i]->terminal != NULL
-						&& g->producciones[i]->noTerminal == NULL)) {
+		if ((g->producciones[i]->terminal == '\0'
+				&& g->producciones[i]->noTerminal != '\0')
+				|| (g->producciones[i]->terminal != '\0'
+						&& g->producciones[i]->noTerminal == '\0')) {
 			return 0;
 		}
 	}
@@ -683,8 +690,8 @@ int obtenerProducciones(gramatica_t g, noTerminal_t pIz, noTerminal_t noTer) {
 	}
 	for (i = 0; i < cant; i++) {
 		if (g->producciones[i]->parteIzquierda == noTer) {
-			if (!(g->producciones[i]->terminal == NULL
-					&& g->producciones[i]->noTerminal != NULL)) {
+			if (!(g->producciones[i]->terminal == '\0'
+					&& g->producciones[i]->noTerminal != '\0')) {
 				sum = sum
 						+ agregarProduccion(g, pIz,
 								g->producciones[i]->terminal,
@@ -733,8 +740,8 @@ void imprimirProducciones(gramatica_t g, noTerminal_t pIz) {
 	for (j = 0; j < cant && i < cantProd - 1; j++) {
 		if (g->producciones[j]->parteIzquierda == pIz) {
 			i++;
-			if (g->producciones[j]->terminal == NULL
-					&& g->producciones[j]->noTerminal == NULL) {
+			if (g->producciones[j]->terminal == '\0'
+					&& g->producciones[j]->noTerminal == '\0') {
 				printf("\\ | ");
 			} else {
 				if (g->tipo == GLD) {
@@ -744,7 +751,7 @@ void imprimirProducciones(gramatica_t g, noTerminal_t pIz) {
 					printf("%c%c | ", g->producciones[j]->noTerminal,
 							g->producciones[j]->terminal);
 				} else {
-					Error("El tipo de la gramatica no es un tipo valido");
+					Error("El tipo de la gramatica no es un tipo valido\n");
 				}
 			}
 		}
@@ -753,8 +760,8 @@ void imprimirProducciones(gramatica_t g, noTerminal_t pIz) {
 	for (; j < cant && i < cantProd; j++) {
 		if (g->producciones[j]->parteIzquierda == pIz) {
 			i++;
-			if (g->producciones[j]->terminal == NULL
-					&& g->producciones[j]->noTerminal == NULL) {
+			if (g->producciones[j]->terminal == '\0'
+					&& g->producciones[j]->noTerminal == '\0') {
 				printf("\\");
 			} else {
 				if (g->tipo == GLD) {
@@ -764,7 +771,7 @@ void imprimirProducciones(gramatica_t g, noTerminal_t pIz) {
 					printf("%c%c", g->producciones[j]->noTerminal,
 							g->producciones[j]->terminal);
 				} else {
-					Error("El tipo de la gramatica no es un tipo valido");
+					Error("El tipo de la gramatica no es un tipo valido\n");
 				}
 			}
 		}
@@ -791,8 +798,8 @@ void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile) {
 	for (j = 0; j < cant && i < cantProd - 1; j++) {
 		if (g->producciones[j]->parteIzquierda == pIz) {
 			i++;
-			if (g->producciones[j]->terminal == NULL
-					&& g->producciones[j]->noTerminal == NULL) {
+			if (g->producciones[j]->terminal == '\0'
+					&& g->producciones[j]->noTerminal == '\0') {
 				fprintf(grFile, "\\ | ");
 			} else {
 				if (g->tipo == GLD) {
@@ -802,7 +809,7 @@ void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile) {
 					fprintf(grFile, "%c%c | ", g->producciones[j]->noTerminal,
 							g->producciones[j]->terminal);
 				} else {
-					Error("El tipo de la gramatica no es un tipo valido");
+					Error("El tipo de la gramatica no es un tipo valido\n");
 				}
 			}
 		}
@@ -811,8 +818,8 @@ void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile) {
 	for (; j < cant && i < cantProd; j++) {
 		if (g->producciones[j]->parteIzquierda == pIz) {
 			i++;
-			if (g->producciones[j]->terminal == NULL
-					&& g->producciones[j]->noTerminal == NULL) {
+			if (g->producciones[j]->terminal == '\0'
+					&& g->producciones[j]->noTerminal == '\0') {
 				fprintf(grFile, "\\");
 			} else {
 				if (g->tipo == GLD) {
@@ -822,7 +829,7 @@ void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile) {
 					fprintf(grFile, "%c%c", g->producciones[j]->noTerminal,
 							g->producciones[j]->terminal);
 				} else {
-					Error("El tipo de la gramatica no es un tipo valido");
+					Error("El tipo de la gramatica no es un tipo valido\n");
 				}
 			}
 		}
