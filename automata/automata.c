@@ -42,7 +42,7 @@ void agregarTerminalAutomata(automata_t automata, terminal_t terminal);
 void imprimirTransiciones(FILE * dotFile, nodo_t estado);
 
 static void Error(const char* s) {
-	fprintf(stderr, s);
+	printf("%s\n", s);
 	exit(EXIT_FAILURE);
 }
 

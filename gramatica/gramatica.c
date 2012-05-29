@@ -31,7 +31,7 @@ void imprimirProducciones(gramatica_t g, noTerminal_t pIz);
 void fimprimirProducciones(gramatica_t g, noTerminal_t pIz, FILE *grFile);
 
 static void Error(const char* s) {
-	fprintf(stderr, s);
+	printf("%s\n",s);
 	exit(EXIT_FAILURE);
 }
 
@@ -503,7 +503,7 @@ automata_t convertiraAutomata(gramatica_t g) {
 		}
 		if (g->noTerminales[i] != g->simInicial) {
 			estados[i] = cont;
-			char * nombre = crearNombreEstado(cont);
+			char * nombre = (char *)crearNombreEstado(cont);
 			agregarEstado(automata, nombre, cont, final);
 			cont++;
 		} else {
