@@ -45,20 +45,20 @@ int analizarEntrada(int argc, char ** argv) {
 		yylex();
 		switch (tipoDeArchivo) {
 		case AUTOMATA:
-			if(!validarEstadoInicial(automata)) {
+			if(!validarEstadoInicial((automata_t)automata)) {
 				printf("El automata no tiene estado inicial");
 				exit(EXIT_FAILURE);
 			}
-			gram = crearGramatica(automata);
-			imprimirAutomata(automata);
-			imprimirGramatica(gram);
-			crearArchivoGR(gram);
+			gram = crearGramatica((automata_t)automata);
+			imprimirAutomata((automata_t)automata);
+			imprimirGramatica((gramatica_t)gram);
+			crearArchivoGR((gramatica_t)gram);
 			break;
 		case GRAMATICA:
-			imprimirGramatica(gramatica);
-			autom = convertiraAutomata(gramatica);
-			imprimirAutomata(autom);
-			crearArchivoDOT(autom);
+			imprimirGramatica((gramatica_t)gramatica);
+			autom = convertiraAutomata((gramatica_t)gramatica);
+			imprimirAutomata((automata_t)autom);
+			crearArchivoDOT((automata_t)autom);
 			system("dot -Tpng automata.dot -o salida.png");
 			system("rm automata.dot");
 			break;
