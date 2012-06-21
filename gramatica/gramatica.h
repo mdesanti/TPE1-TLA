@@ -9,9 +9,6 @@
 #include "../defs.h"
 #include "../automata/automata.h"
 
-typedef struct gramatica *gramatica_t;
-
-typedef struct produccion *produccion_t;
 
 gramatica_t nuevaGramatica(void);
 

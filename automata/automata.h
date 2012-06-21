@@ -9,11 +9,6 @@
 #include "../defs.h"
 #include "../gramatica/gramatica.h"
 
-typedef struct nodo *nodo_t;
-
-typedef struct automata *automata_t;
-
-typedef struct transicion transicion_t;
 
 automata_t nuevoAutomata();
 
