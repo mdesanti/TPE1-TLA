@@ -3,13 +3,97 @@
 #include <ctype.h>
 #include <string.h>
 
+typedef int(*pt2Func)(int *, char *);
+int procedimientoA(int * index, char * word);
+int procedimientoB(int * index, char * word);
+int procedimientoC(int * index, char * word);
+pt2Func funcionPara(char noTerm);
 int main(int argc, char ** argv) {
 	int index = 0;
 	char * word = argv[1];
-	if(funcionA(&index, word)) {
+	if(procedimientoA(&index, word)) {
 		if(word[index] == '\0'){
-			printf("La cadena pertenece");
+			printf("La cadena pertenece\n");
 		} else {
-			 printf("La cadena no pertenece");
+			printf("La cadena no pertenece\n");
 		}
+	}
+}
+
+int procedimientoA(int * index, char * word) {
+	int noerror = 1;
+
+
+	noerror = procesar(index, word, "aB");
+	if(noerror){
+		return 1;
+	}
+
+	noerror = procesar(index, word, "c");
+	if(noerror){
+		return 1;
+	}
+
+	return noerror;
+}
+
+int procedimientoB(int * index, char * word) {
+	int noerror = 1;
+
+
+	noerror = procesar(index, word, "aA");
+	if(noerror){
+		return 1;
+	}
+
+	noerror = procesar(index, word, "b");
+	if(noerror){
+		return 1;
+	}
+
+	return noerror;
+}
+
+int procedimientoC(int * index, char * word) {
+	int noerror = 1;
+
+
+	return noerror;
+}
+
+int procesar(int * index, char * word, char * seq) {
+	int seqIndex = 0;
+	int (*fp) (int *, char*);
+	while(seq[seqIndex] != '\0') {
+		if(islower(seq[seqIndex])) {
+			if(seq[seqIndex] == word[*index]) {
+				(*index)++;seqIndex++;
+			} else {
+				 return 0;
+			}
+		} else if(isupper(seq[seqIndex])) {
+			fp = funcionPara(seq[seqIndex]);
+			if(!(*fp)(index, word)) {
+				return 0;
+			} else {
+ 				 seqIndex++;
+			}
+		}
+	}
+	 return 1;
+}
+
+pt2Func funcionPara(char noTerm) {
+	if(noTerm == 'A') {
+		return &procedimientoA;
+	}
+
+	if(noTerm == 'B') {
+		return &procedimientoB;
+	}
+
+	if(noTerm == 'C') {
+		return &procedimientoC;
+	}
+
 }
