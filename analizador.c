@@ -6,11 +6,13 @@
 typedef int(*pt2Func)(int *, char *);
 char ** array;
 int logIndex = 0;
-int procedimientoS(int * index, char * word);
-
 int procedimientoA(int * index, char * word);
 
 int procedimientoB(int * index, char * word);
+
+int procedimientoC(int * index, char * word);
+
+int procedimientoD(int * index, char * word);
 
 pt2Func funcionPara(char noTerm);
 void add(char * prod);
@@ -22,7 +24,7 @@ int main(int argc, char ** argv) {
 	array = malloc(10*sizeof(char *));
 	int index = 0;
 	char * word = argv[1];
-	if(procedimientoS(&index, word)) {
+	if(procedimientoA(&index, word)) {
 		if(word[index] == '\0'){
 			printf("La cadena pertenece\n");
 		} else {
@@ -37,40 +39,14 @@ int main(int argc, char ** argv) {
 	}
 }
 
-int procedimientoS(int * index, char * word) {
-	int noerror = 1;
-
-
-	int backup;
-	backup = *index;
-	add("S->AB");
-	noerror = procesar(index, word, "AB");
-	if(noerror && word[*index] == '\0'){
-		return 1;
-	}
-
-	clear();
-	*index = backup;
-	backup = *index;
-	add("S->aBbc");
-	noerror = procesar(index, word, "aBbc");
-	if(noerror && word[*index] == '\0'){
-		return 1;
-	}
-
-	clear();
-	*index = backup;
-	return 0;
-}
-
 int procedimientoA(int * index, char * word) {
 	int noerror = 1;
 
 
 	int backup;
 	backup = *index;
-	add("A->bB");
-	noerror = procesar(index, word, "bB");
+	add("A->aB");
+	noerror = procesar(index, word, "aB");
 	if(noerror){
 		return 1;
 	}
@@ -78,8 +54,17 @@ int procedimientoA(int * index, char * word) {
 	undo();
 	*index = backup;
 	backup = *index;
-	add("A->-");
-	noerror = procesar(index, word, "-");
+	add("A->c");
+	noerror = procesar(index, word, "c");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("A->a");
+	noerror = procesar(index, word, "a");
 	if(noerror){
 		return 1;
 	}
@@ -95,8 +80,78 @@ int procedimientoB(int * index, char * word) {
 
 	int backup;
 	backup = *index;
-	add("B->aAA");
-	noerror = procesar(index, word, "aAA");
+	add("B->bC");
+	noerror = procesar(index, word, "bC");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("B->b");
+	noerror = procesar(index, word, "b");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	return 0;
+}
+
+int procedimientoC(int * index, char * word) {
+	int noerror = 1;
+
+
+	int backup;
+	backup = *index;
+	add("C->bD");
+	noerror = procesar(index, word, "bD");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	return 0;
+}
+
+int procedimientoD(int * index, char * word) {
+	int noerror = 1;
+
+
+	int backup;
+	backup = *index;
+	add("D->aBD");
+	noerror = procesar(index, word, "aBD");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("D->aC");
+	noerror = procesar(index, word, "aC");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("D->aD");
+	noerror = procesar(index, word, "aD");
+	if(noerror){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("D->a");
+	noerror = procesar(index, word, "a");
 	if(noerror){
 		return 1;
 	}
@@ -132,16 +187,20 @@ int procesar(int * index, char * word, char * seq) {
 }
 
 pt2Func funcionPara(char noTerm) {
-	if(noTerm == 'S') {
-		return &procedimientoS;
-	}
-
 	if(noTerm == 'A') {
 		return &procedimientoA;
 	}
 
 	if(noTerm == 'B') {
 		return &procedimientoB;
+	}
+
+	if(noTerm == 'C') {
+		return &procedimientoC;
+	}
+
+	if(noTerm == 'D') {
+		return &procedimientoD;
 	}
 
 }
