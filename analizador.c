@@ -12,11 +12,12 @@ int procedimientoA(int * index, char * word);
 
 int procedimientoB(int * index, char * word);
 
+pt2Func funcionPara(char noTerm);
 void add(char * prod);
 void undo();
+void clear();
 
 
-pt2Func funcionPara(char noTerm);
 int main(int argc, char ** argv) {
 	array = malloc(10*sizeof(char *));
 	int index = 0;
@@ -48,7 +49,7 @@ int procedimientoS(int * index, char * word) {
 		return 1;
 	}
 
-	undo();
+	clear();
 	*index = backup;
 	backup = *index;
 	add("S->aBbc");
@@ -57,7 +58,7 @@ int procedimientoS(int * index, char * word) {
 		return 1;
 	}
 
-	undo();
+	clear();
 	*index = backup;
 	return 0;
 }
@@ -156,3 +157,8 @@ void add(char * prod) {
 void undo() {
 	array[--logIndex] = '\0';
 }
+void clear() {
+	int i = 0;
+	logIndex = 0;	while(array[i] != '\0') {
+		array[i++] = '\0';
+	};}

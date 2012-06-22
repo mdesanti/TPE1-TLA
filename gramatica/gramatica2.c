@@ -77,10 +77,11 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 				"int procedimiento%c(int * index, char * word);\n\n",
 				noTerminales[index++]);
 	}
-	fprintf(analizador, "void add(char * prod);\n");
-	fprintf(analizador, "void undo();\n\n\n");
-
 	fprintf(analizador, "pt2Func funcionPara(char noTerm);\n");
+	fprintf(analizador, "void add(char * prod);\n");
+	fprintf(analizador, "void undo();\n");
+	fprintf(analizador, "void clear();\n\n\n");
+
 	fprintf(analizador, "int main(int argc, char ** argv) {\n");
 	fprintf(analizador, "\tarray = malloc(10*sizeof(char *));\n");
 	fprintf(analizador, "\tint index = 0;\n\tchar * word = argv[1];\n");
@@ -134,7 +135,7 @@ void crearProcedimientoInicial(gramatica_t gramatica, FILE * analizador,
 		fprintf(analizador, "\tif(noerror && word[*index] == \'\\0\'){\n");
 		fprintf(analizador, "\t\treturn 1;\n");
 		fprintf(analizador, "\t}\n\n");
-		fprintf(analizador, "\tundo();\n");
+		fprintf(analizador, "\tclear();\n");
 		fprintf(analizador, "\t*index = backup;\n");
 		index++;
 	}
@@ -226,6 +227,14 @@ void crearFuncionDeLog(FILE * analizador) {
 
 	fprintf(analizador, "void undo() {\n");
 	fprintf(analizador, "\tarray[--logIndex] = \'\\0\';\n");
+	fprintf(analizador, "}\n");
+
+	fprintf(analizador, "void clear() {\n");
+	fprintf(analizador, "\tint i = 0;\n");
+	fprintf(analizador, "\tlogIndex = 0;");
+	fprintf(analizador, "\twhile(array[i] != \'\\0\') {\n");
+	fprintf(analizador, "\t\tarray[i++] = \'\\0\';\n");
+	fprintf(analizador, "\t};");
 	fprintf(analizador, "}\n");
 }
 
