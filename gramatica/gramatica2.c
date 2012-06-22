@@ -53,6 +53,8 @@ gramatica_t nuevaGramatica(void) {
 
 void crearAnalizador(gramatica_t gramatica) {
 	FILE * analizador = fopen("analizador.c", "w");
+	printf("Producciones leidas:\n");
+	imprimirProd(gramatica);
 	eliminarProduccionesLambda(gramatica);
 	printf("Se eliminaron producciones lambda para facilitar el algoritmo. Las nuevas producciones son:\n");
 	imprimirProd(gramatica);
@@ -166,7 +168,6 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "pt2Func funcionPara(char noTerm);\n");
 	fprintf(analizador, "void add(char * prod);\n");
 	fprintf(analizador, "void undo();\n");
-	fprintf(analizador, "void clear();\n\n\n");
 
 	fprintf(analizador, "int main(int argc, char ** argv) {\n");
 	fprintf(analizador, "\tarray = malloc(10*sizeof(char *));\n");
@@ -281,14 +282,6 @@ void crearFuncionDeLog(FILE * analizador) {
 
 	fprintf(analizador, "void undo() {\n");
 	fprintf(analizador, "\tarray[--logIndex] = \'\\0\';\n");
-	fprintf(analizador, "}\n");
-
-	fprintf(analizador, "void clear() {\n");
-	fprintf(analizador, "\tint i = 0;\n");
-	fprintf(analizador, "\tlogIndex = 0;");
-	fprintf(analizador, "\twhile(array[i] != \'\\0\') {\n");
-	fprintf(analizador, "\t\tarray[i++] = \'\\0\';\n");
-	fprintf(analizador, "\t};");
 	fprintf(analizador, "}\n");
 }
 

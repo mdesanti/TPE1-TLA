@@ -17,9 +17,6 @@ int procedimientoD(int * index, char * word);
 pt2Func funcionPara(char noTerm);
 void add(char * prod);
 void undo();
-void clear();
-
-
 int main(int argc, char ** argv) {
 	array = malloc(10*sizeof(char *));
 	int index = 0;
@@ -216,8 +213,3 @@ void add(char * prod) {
 void undo() {
 	array[--logIndex] = '\0';
 }
-void clear() {
-	int i = 0;
-	logIndex = 0;	while(array[i] != '\0') {
-		array[i++] = '\0';
-	};}
