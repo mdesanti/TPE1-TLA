@@ -34,6 +34,7 @@ int analizarEntrada(int argc, char ** argv) {
 		switch (tipoDeArchivo) {
 		case GRAMATICA:
 			crearAnalizador(gramatica);
+			system("gcc -g -o ASDR analizador.c");
 			break;
 		}
 		return EXIT_SUCCESS;

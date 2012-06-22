@@ -31,6 +31,9 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 		char noTerminal);
 produccion_t * produccionesPara(gramatica_t gramatica, char noTerminal);
 void crearBaseDeFunciones(gramatica_t gramatica, FILE * analizador);
+void crearProcedimientoInicial(gramatica_t gramatica, FILE * analizador,
+		char noTerminal);
+
 
 static void Error(const char* s) {
 	printf("%s\n", s);
@@ -70,7 +73,8 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 	int index = 0;
 
 	while (noTerminales[index] != '\0') {
-		fprintf(analizador, "int procedimiento%c(int * index, char * word);\n\n",
+		fprintf(analizador,
+				"int procedimiento%c(int * index, char * word);\n\n",
 				noTerminales[index++]);
 	}
 	fprintf(analizador, "void add(char * prod);\n");
@@ -102,8 +106,41 @@ void crearProcedimientos(gramatica_t gramatica, FILE * analizador) {
 	int index = 0;
 
 	while (noTerminales[index] != '\0') {
-		crearProcedimiento(gramatica, analizador, noTerminales[index++]);
+		if (noTerminales[index] != gramatica->simInicial) {
+			crearProcedimiento(gramatica, analizador, noTerminales[index]);
+		} else {
+			crearProcedimientoInicial(gramatica, analizador, gramatica->simInicial);
+		}
+		index++;
 	}
+}
+
+void crearProcedimientoInicial(gramatica_t gramatica, FILE * analizador,
+		char noTerminal) {
+	produccion_t * producciones = gramatica->producciones;
+	produccion_t * produccionesDesdeNoTerm = produccionesPara(gramatica,
+			noTerminal);
+	int index = 0;
+	fprintf(analizador, "int procedimiento%c(int * index, char * word) {\n",
+			noTerminal);
+	fprintf(analizador, "\tint noerror = 1;\n\n\n");
+	fprintf(analizador, "\tint backup;\n");
+	while (produccionesDesdeNoTerm[index] != '\0') {
+		fprintf(analizador, "\tbackup = *index;\n");
+		fprintf(analizador, "\tadd(\"%c->%s\");\n", noTerminal,
+				produccionesDesdeNoTerm[index]->parteDerecha);
+		fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
+				produccionesDesdeNoTerm[index]->parteDerecha);
+		fprintf(analizador, "\tif(noerror && word[*index] == \'\\0\'){\n");
+		fprintf(analizador, "\t\treturn 1;\n");
+		fprintf(analizador, "\t}\n\n");
+		fprintf(analizador, "\tundo();\n");
+		fprintf(analizador, "\t*index = backup;\n");
+		index++;
+	}
+	fprintf(analizador, "\treturn 0;\n");
+	fprintf(analizador, "}\n\n");
+
 }
 
 void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
@@ -118,8 +155,8 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 	fprintf(analizador, "\tint backup;\n");
 	while (produccionesDesdeNoTerm[index] != '\0') {
 		fprintf(analizador, "\tbackup = *index;\n");
-		fprintf(analizador, "\t\tadd(\"%c->%s\");\n", noTerminal,
-						produccionesDesdeNoTerm[index]->parteDerecha);
+		fprintf(analizador, "\tadd(\"%c->%s\");\n", noTerminal,
+				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
 				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tif(noerror){\n");
@@ -179,7 +216,8 @@ void crearBaseDeFunciones(gramatica_t gramatica, FILE * analizador) {
 void crearFuncionDeLog(FILE * analizador) {
 	fprintf(analizador, "void add(char * prod) {\n");
 	fprintf(analizador, "\tif(logIndex % 10 == 0) {\n");
-	fprintf(analizador, "\t\tarray = realloc(array, (logIndex + 10)*sizeof(char *));\n");
+	fprintf(analizador,
+			"\t\tarray = realloc(array, (logIndex + 10)*sizeof(char *));\n");
 	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\tint size = strlen(prod);\n");
 	fprintf(analizador, "\tarray[logIndex] = malloc(size * sizeof(char));\n");

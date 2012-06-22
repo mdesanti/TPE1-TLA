@@ -8,9 +8,9 @@ char ** array;
 int logIndex = 0;
 int procedimientoS(int * index, char * word);
 
-int procedimientoB(int * index, char * word);
+int procedimientoA(int * index, char * word);
 
-int procedimientoC(int * index, char * word);
+int procedimientoB(int * index, char * word);
 
 void add(char * prod);
 void undo();
@@ -42,8 +42,34 @@ int procedimientoS(int * index, char * word) {
 
 	int backup;
 	backup = *index;
-		add("S->BC");
-	noerror = procesar(index, word, "BC");
+	add("S->AB");
+	noerror = procesar(index, word, "AB");
+	if(noerror && word[*index] == '\0'){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	backup = *index;
+	add("S->aBbc");
+	noerror = procesar(index, word, "aBbc");
+	if(noerror && word[*index] == '\0'){
+		return 1;
+	}
+
+	undo();
+	*index = backup;
+	return 0;
+}
+
+int procedimientoA(int * index, char * word) {
+	int noerror = 1;
+
+
+	int backup;
+	backup = *index;
+	add("A->bB");
+	noerror = procesar(index, word, "bB");
 	if(noerror){
 		return 1;
 	}
@@ -51,8 +77,8 @@ int procedimientoS(int * index, char * word) {
 	undo();
 	*index = backup;
 	backup = *index;
-		add("S->a");
-	noerror = procesar(index, word, "a");
+	add("A->-");
+	noerror = procesar(index, word, "-");
 	if(noerror){
 		return 1;
 	}
@@ -68,43 +94,8 @@ int procedimientoB(int * index, char * word) {
 
 	int backup;
 	backup = *index;
-		add("B->cS");
-	noerror = procesar(index, word, "cS");
-	if(noerror){
-		return 1;
-	}
-
-	undo();
-	*index = backup;
-	backup = *index;
-		add("B->-");
-	noerror = procesar(index, word, "-");
-	if(noerror){
-		return 1;
-	}
-
-	undo();
-	*index = backup;
-	return 0;
-}
-
-int procedimientoC(int * index, char * word) {
-	int noerror = 1;
-
-
-	int backup;
-	backup = *index;
-		add("C->bC");
-	noerror = procesar(index, word, "bC");
-	if(noerror){
-		return 1;
-	}
-
-	undo();
-	*index = backup;
-	backup = *index;
-		add("C->-");
-	noerror = procesar(index, word, "-");
+	add("B->aAA");
+	noerror = procesar(index, word, "aAA");
 	if(noerror){
 		return 1;
 	}
@@ -144,12 +135,12 @@ pt2Func funcionPara(char noTerm) {
 		return &procedimientoS;
 	}
 
-	if(noTerm == 'B') {
-		return &procedimientoB;
+	if(noTerm == 'A') {
+		return &procedimientoA;
 	}
 
-	if(noTerm == 'C') {
-		return &procedimientoC;
+	if(noTerm == 'B') {
+		return &procedimientoB;
 	}
 
 }
