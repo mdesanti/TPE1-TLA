@@ -15,7 +15,10 @@ int main(int argc, char ** argv) {
 	if(procedimientoA(&index, word)) {
 		if(word[index] == '\0'){
 			printf("La cadena pertenece\n");
-		}	} else {
+		} else {
+			printf("La cadena no pertenece\n");
+		}
+	} else {
 		printf("La cadena no pertenece\n");
 	}
 }

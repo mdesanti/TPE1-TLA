@@ -77,7 +77,9 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 			gramatica->simInicial);
 	fprintf(analizador, "\t\tif(word[index] == \'\\0\'){\n");
 	fprintf(analizador, "\t\t\tprintf(\"La cadena pertenece\\n\");\n");
-	fprintf(analizador, "\t\t}");
+	fprintf(analizador, "\t\t} else {\n");
+	fprintf(analizador, "\t\t\tprintf(\"La cadena no pertenece\\n\");\n");
+	fprintf(analizador, "\t\t}\n");
 	fprintf(analizador, "\t} else {\n");
 	fprintf(analizador, "\t\tprintf(\"La cadena no pertenece\\n\");\n");
 	fprintf(analizador, "\t}\n");
