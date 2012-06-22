@@ -4,15 +4,24 @@
 #include <string.h>
 
 typedef int(*pt2Func)(int *, char *);
-int procedimientoA(int * index, char * word);
+char ** array;
+int logIndex = 0;
+int procedimientoS(int * index, char * word);
+
 int procedimientoB(int * index, char * word);
+
 int procedimientoC(int * index, char * word);
-int procedimientoD(int * index, char * word);
+
+void add(char * prod);
+void undo();
+
+
 pt2Func funcionPara(char noTerm);
 int main(int argc, char ** argv) {
+	array = malloc(10*sizeof(char *));
 	int index = 0;
 	char * word = argv[1];
-	if(procedimientoA(&index, word)) {
+	if(procedimientoS(&index, word)) {
 		if(word[index] == '\0'){
 			printf("La cadena pertenece\n");
 		} else {
@@ -21,26 +30,34 @@ int main(int argc, char ** argv) {
 	} else {
 		printf("La cadena no pertenece\n");
 	}
+	int i = 0;
+	while(array[i] != '\0') {
+		printf("%s\n",array[i++]);
+	}
 }
 
-int procedimientoA(int * index, char * word) {
+int procedimientoS(int * index, char * word) {
 	int noerror = 1;
 
 
 	int backup;
 	backup = *index;
-	noerror = procesar(index, word, "aB");
+		add("S->BC");
+	noerror = procesar(index, word, "BC");
 	if(noerror){
 		return 1;
 	}
 
+	undo();
 	*index = backup;
 	backup = *index;
-	noerror = procesar(index, word, "c");
+		add("S->a");
+	noerror = procesar(index, word, "a");
 	if(noerror){
 		return 1;
 	}
 
+	undo();
 	*index = backup;
 	return 0;
 }
@@ -51,18 +68,22 @@ int procedimientoB(int * index, char * word) {
 
 	int backup;
 	backup = *index;
-	noerror = procesar(index, word, "bC");
+		add("B->cS");
+	noerror = procesar(index, word, "cS");
 	if(noerror){
 		return 1;
 	}
 
+	undo();
 	*index = backup;
 	backup = *index;
+		add("B->-");
 	noerror = procesar(index, word, "-");
 	if(noerror){
 		return 1;
 	}
 
+	undo();
 	*index = backup;
 	return 0;
 }
@@ -73,40 +94,22 @@ int procedimientoC(int * index, char * word) {
 
 	int backup;
 	backup = *index;
-	noerror = procesar(index, word, "bD");
+		add("C->bC");
+	noerror = procesar(index, word, "bC");
 	if(noerror){
 		return 1;
 	}
 
+	undo();
 	*index = backup;
 	backup = *index;
+		add("C->-");
 	noerror = procesar(index, word, "-");
 	if(noerror){
 		return 1;
 	}
 
-	*index = backup;
-	return 0;
-}
-
-int procedimientoD(int * index, char * word) {
-	int noerror = 1;
-
-
-	int backup;
-	backup = *index;
-	noerror = procesar(index, word, "aBD");
-	if(noerror){
-		return 1;
-	}
-
-	*index = backup;
-	backup = *index;
-	noerror = procesar(index, word, "aC");
-	if(noerror){
-		return 1;
-	}
-
+	undo();
 	*index = backup;
 	return 0;
 }
@@ -137,8 +140,8 @@ int procesar(int * index, char * word, char * seq) {
 }
 
 pt2Func funcionPara(char noTerm) {
-	if(noTerm == 'A') {
-		return &procedimientoA;
+	if(noTerm == 'S') {
+		return &procedimientoS;
 	}
 
 	if(noTerm == 'B') {
@@ -149,8 +152,16 @@ pt2Func funcionPara(char noTerm) {
 		return &procedimientoC;
 	}
 
-	if(noTerm == 'D') {
-		return &procedimientoD;
+}
+void add(char * prod) {
+	if(logIndex % 10 == 0) {
+		array = realloc(array, (logIndex + 10)*sizeof(char *));
 	}
+	int size = strlen(prod);
+	array[logIndex] = malloc(size * sizeof(char));
+	strcpy(array[logIndex++], prod);
+}
 
+void undo() {
+	array[--logIndex] = '\0';
 }
