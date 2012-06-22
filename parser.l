@@ -99,6 +99,7 @@ gramatica_t gramatica;
                         if (tipoDeArchivo == GRAMATICA && estado == PRODUCCIONES) { 
                         }  else { REJECT; }
                       }
+(\{|\(|\))?          {}
                       
 %%
 
