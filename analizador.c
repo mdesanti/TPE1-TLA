@@ -14,9 +14,8 @@ int main(int argc, char ** argv) {
 	if(procedimientoA(&index, word)) {
 		if(word[index] == '\0'){
 			printf("La cadena pertenece\n");
-		} else {
-			printf("La cadena no pertenece\n");
-		}
+		}	} else {
+		printf("La cadena no pertenece\n");
 	}
 }
 
@@ -24,41 +23,52 @@ int procedimientoA(int * index, char * word) {
 	int noerror = 1;
 
 
+	int backup;
+	backup = *index;
 	noerror = procesar(index, word, "aB");
 	if(noerror){
 		return 1;
 	}
 
+	*index = backup;
+	backup = *index;
 	noerror = procesar(index, word, "c");
 	if(noerror){
 		return 1;
 	}
 
-	return noerror;
+	*index = backup;
+	return 0;
 }
 
 int procedimientoB(int * index, char * word) {
 	int noerror = 1;
 
 
+	int backup;
+	backup = *index;
 	noerror = procesar(index, word, "aA");
 	if(noerror){
 		return 1;
 	}
 
+	*index = backup;
+	backup = *index;
 	noerror = procesar(index, word, "b");
 	if(noerror){
 		return 1;
 	}
 
-	return noerror;
+	*index = backup;
+	return 0;
 }
 
 int procedimientoC(int * index, char * word) {
 	int noerror = 1;
 
 
-	return noerror;
+	int backup;
+	return 0;
 }
 
 int procesar(int * index, char * word, char * seq) {
