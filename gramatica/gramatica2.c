@@ -121,6 +121,10 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador,
 			"int procesar(int * index, char * word, char * seq) {\n");
+	fprintf(analizador, "\tif(seq[0] == \'-\') {\n");
+//	fprintf(analizador, "\t\t(*index)++;\n");
+	fprintf(analizador, "\t\treturn 1;\n");
+	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\tint seqIndex = 0;\n");
 	fprintf(analizador, "\tint (*fp) (int *, char*);\n");
 	fprintf(analizador, "\twhile(seq[seqIndex] != \'\\0\') {\n");
@@ -181,7 +185,7 @@ void agregarProduccionDesdeCadena(gramatica_t gramatica, char * cadena) {
 	char term = 0, noTerm = 0, seteada = 0;
 	int termino = 0, indice = 3;
 
-	if (pIz == '/') {
+	if (pIz == '\\') {
 		Error("Lambda no puede ser la parte izquierda de una produccion\n");
 	}
 	if (cadena[1] != '-' || cadena[2] != '>') {
@@ -238,9 +242,11 @@ char ** split(char elem, char * str) {
 int agregarProduccion(gramatica_t gramatica, char * parteDerecha,
 		noTerminal_t parteIzquierda) {
 
-	if (!esProduccionValida(gramatica, parteIzquierda, parteDerecha)) {
+	if (parteDerecha[0] != '\\' && !esProduccionValida(gramatica, parteIzquierda, parteDerecha)) {
 		Error("La producci—n no es v‡lida");
 	}
+	if(parteDerecha[0] == '\\')
+		parteDerecha[0] = '-';
 	produccion_t *prod = gramatica->producciones;
 	produccion_t aux;
 	if ((aux = malloc(sizeof(struct produccion))) == NULL) {
