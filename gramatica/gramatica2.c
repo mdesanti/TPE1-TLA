@@ -233,18 +233,18 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 		fprintf(analizador, "\tnodosHoja += %d;\n", contarTerminales(produccionesDesdeNoTerm[index]->parteDerecha));
 		fprintf(analizador, "\tprintf(\"%c->%s\\n\");\n", noTerminal, produccionesDesdeNoTerm[index]->parteDerecha);
 		//fprintf(analizador, "\tif(nodosHoja<=strlen(word)){\n");
-		fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
-				produccionesDesdeNoTerm[index]->parteDerecha);
-		fprintf(analizador, "\tif(noerror){\n");
 		if(produccionesDesdeNoTerm[index]->parteDerecha[0]!='-'){
+			fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
+				produccionesDesdeNoTerm[index]->parteDerecha);
+			fprintf(analizador, "\tif(noerror){\n");
 			fprintf(analizador, "\t\tif(backup == *index)\n");
 			fprintf(analizador, "\t\t\tflag = 1;\n");
 			fprintf(analizador, "\t\telse\n");
 			fprintf(analizador, "\t\t\treturn 1;\n");
+			fprintf(analizador, "\t}\n");
 		}else{
-			fprintf(analizador, "\t\treturn 1;\n");
+			fprintf(analizador, "\tflag = 1;\n");
 		}
-		fprintf(analizador, "\t}\n");
 		//fprintf(analizador, "\t}\n\n");
 		fprintf(analizador, "\tundo();\n");
 		fprintf(analizador, "\t*index = backup;\n");
@@ -253,8 +253,15 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 		fprintf(analizador, "\tnodosHoja = nodosHojabackup;\n");
 		index++;
 	}
-	fprintf(analizador, "\tif(flag)\n");
-	fprintf(analizador, "\t\treturn 1;\n");
+	fprintf(analizador, "\tif(flag){\n");
+	fprintf(analizador, "\t\tpDlen--;\n");
+	fprintf(analizador, "\t\tif(pDlen==pDIndex && word[*index]!=\'\\0\')\n");
+	fprintf(analizador, "\t\t\treturn 0;\n");
+	fprintf(analizador, "\t\telse{\n");
+	fprintf(analizador, "\t\t\tadd(\"%c->-\");\n", noTerminal);
+	fprintf(analizador, "\t\t\treturn 1;\n");
+	fprintf(analizador, "\t\t}\n");
+	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\treturn 0;\n");
 	fprintf(analizador, "}\n\n");
 
@@ -266,14 +273,6 @@ void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "\tprintf(\"%%d\\t%%d\\n\", pDlen, pDIndex);\n");
 	fprintf(analizador, "\tif(nodosHoja>strlen(word))\n");
 	fprintf(analizador, "\t\treturn 0;\n");
-	fprintf(analizador, "\tif(seq[0] == \'-\') {\n");
-//	fprintf(analizador, "\t\t(*index)++;\n");
-	fprintf(analizador, "\t\tpDlen--;\n");
-	fprintf(analizador, "\t\tif(pDlen==pDIndex && word[*index]!=\'\\0\')\n");
-	fprintf(analizador, "\t\t\treturn 0;\n");
-	fprintf(analizador, "\t\telse\n");
-	fprintf(analizador, "\t\t\treturn 1;\n");
-	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\tint seqIndex = 0;\n");
 	fprintf(analizador, "\tint (*fp) (int *, char*);\n");
 	fprintf(analizador, "\twhile(seq[seqIndex] != \'\\0\') {\n");

@@ -86,8 +86,15 @@ int procedimientoS(int * index, char * word) {
 	pDlen = pDlenbackup;
 	pDIndex = pDIndexbackup;
 	nodosHoja = nodosHojabackup;
-	if(flag)
-		return 1;
+	if(flag){
+		pDlen--;
+		if(pDlen==pDIndex && word[*index]!='\0')
+			return 0;
+		else{
+			add("S->-");
+			return 1;
+		}
+	}
 	return 0;
 }
 
@@ -128,17 +135,21 @@ int procedimientoA(int * index, char * word) {
 	pDlen += 0;
 	nodosHoja += 0;
 	printf("A->-\n");
-	noerror = procesar(index, word, "-");
-	if(noerror){
-		return 1;
-	}
+	flag = 1;
 	undo();
 	*index = backup;
 	pDlen = pDlenbackup;
 	pDIndex = pDIndexbackup;
 	nodosHoja = nodosHojabackup;
-	if(flag)
-		return 1;
+	if(flag){
+		pDlen--;
+		if(pDlen==pDIndex && word[*index]!='\0')
+			return 0;
+		else{
+			add("A->-");
+			return 1;
+		}
+	}
 	return 0;
 }
 
@@ -171,8 +182,15 @@ int procedimientoB(int * index, char * word) {
 	pDlen = pDlenbackup;
 	pDIndex = pDIndexbackup;
 	nodosHoja = nodosHojabackup;
-	if(flag)
-		return 1;
+	if(flag){
+		pDlen--;
+		if(pDlen==pDIndex && word[*index]!='\0')
+			return 0;
+		else{
+			add("B->-");
+			return 1;
+		}
+	}
 	return 0;
 }
 
@@ -180,13 +198,6 @@ int procesar(int * index, char * word, char * seq) {
 	printf("%d\t%d\n", pDlen, pDIndex);
 	if(nodosHoja>strlen(word))
 		return 0;
-	if(seq[0] == '-') {
-		pDlen--;
-		if(pDlen==pDIndex && word[*index]!='\0')
-			return 0;
-		else
-			return 1;
-	}
 	int seqIndex = 0;
 	int (*fp) (int *, char*);
 	while(seq[seqIndex] != '\0') {
