@@ -165,6 +165,7 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "int logIndex = 0;\n");
 	fprintf(analizador, "int pDlen = 1;\n");
 	fprintf(analizador, "int pDIndex = 0;\n");
+	fprintf(analizador, "int nodosHoja = 0;\n");
 	char * noTerminales = gramatica->noTerminales;
 	int index = 0;
 
@@ -220,29 +221,40 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 	fprintf(analizador, "\tint backup;\n");
 	fprintf(analizador, "\tint pDlenbackup;\n");
 	fprintf(analizador, "\tint pDIndexbackup;\n");
+	fprintf(analizador, "\tint nodosHojabackup;\n");
 	while (produccionesDesdeNoTerm[index] != NULL) {
 		fprintf(analizador, "\tbackup = *index;\n");
 		fprintf(analizador, "\tpDlenbackup = pDlen;\n");
 		fprintf(analizador, "\tpDIndexbackup = pDIndex;\n");
+		fprintf(analizador, "\tnodosHojabackup = nodosHoja;\n");
 		fprintf(analizador, "\tadd(\"%c->%s\");\n", noTerminal,
 				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tpDlen += %d;\n", strlen(produccionesDesdeNoTerm[index]->parteDerecha)-1);
+		fprintf(analizador, "\tnodosHoja += %d;\n", contarTerminales(produccionesDesdeNoTerm[index]->parteDerecha));
+		fprintf(analizador, "\tprintf(\"%c->%s\\n\");\n", noTerminal, produccionesDesdeNoTerm[index]->parteDerecha);
+		//fprintf(analizador, "\tif(nodosHoja<=strlen(word)){\n");
 		fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
 				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tif(noerror){\n");
-		fprintf(analizador, "\t\tif(backup == *index)\n");
-		fprintf(analizador, "\t\t\tflag = 1;\n");
-		fprintf(analizador, "\t\telse\n");
-		fprintf(analizador, "\t\t\treturn 1;\n");
-		fprintf(analizador, "\t}\n\n");
+		if(produccionesDesdeNoTerm[index]->parteDerecha[0]!='-'){
+			fprintf(analizador, "\t\tif(backup == *index)\n");
+			fprintf(analizador, "\t\t\tflag = 1;\n");
+			fprintf(analizador, "\t\telse\n");
+			fprintf(analizador, "\t\t\treturn 1;\n");
+		}else{
+			fprintf(analizador, "\t\treturn 1;\n");
+		}
+		fprintf(analizador, "\t}\n");
+		//fprintf(analizador, "\t}\n\n");
 		fprintf(analizador, "\tundo();\n");
 		fprintf(analizador, "\t*index = backup;\n");
 		fprintf(analizador, "\tpDlen = pDlenbackup;\n");
 		fprintf(analizador, "\tpDIndex = pDIndexbackup;\n");
+		fprintf(analizador, "\tnodosHoja = nodosHojabackup;\n");
 		index++;
 	}
 	fprintf(analizador, "\tif(flag)\n");
-	fprintf(analizador, "\t\treturn 1;");
+	fprintf(analizador, "\t\treturn 1;\n");
 	fprintf(analizador, "\treturn 0;\n");
 	fprintf(analizador, "}\n\n");
 
@@ -251,6 +263,9 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador,
 			"int procesar(int * index, char * word, char * seq) {\n");
+	fprintf(analizador, "\tprintf(\"%%d\\t%%d\\n\", pDlen, pDIndex);\n");
+	fprintf(analizador, "\tif(nodosHoja>strlen(word))\n");
+	fprintf(analizador, "\t\treturn 0;\n");
 	fprintf(analizador, "\tif(seq[0] == \'-\') {\n");
 //	fprintf(analizador, "\t\t(*index)++;\n");
 	fprintf(analizador, "\t\tpDlen--;\n");
@@ -539,4 +554,14 @@ void imprimirProd(gramatica_t gramatica) {
 		printf("%c->%s\n", producciones[i]->parteIzquierda, producciones[i]->parteDerecha);
 		i++;
 	}
+}
+
+int contarTerminales(char * string){
+	int count = 0;
+	int i=0;
+	for( i=0 ; string[i]!='\0' ; i++){
+		if(islower(string[i]))
+			count++;
+	}
+	return count;
 }
