@@ -54,9 +54,9 @@ gramatica_t nuevaGramatica(void) {
 void crearAnalizador(gramatica_t gramatica) {
 	FILE * analizador = fopen("analizador.c", "w");
 	printf("Producciones leidas:\n");
-	imprimirProd(gramatica);
-	eliminarProduccionesLambda(gramatica);
-	printf("Se eliminaron producciones lambda para facilitar el algoritmo. Las nuevas producciones son:\n");
+	//imprimirProd(gramatica);
+	//eliminarProduccionesLambda(gramatica);
+	//printf("Se eliminaron producciones lambda para facilitar el algoritmo. Las nuevas producciones son:\n");
 	imprimirProd(gramatica);
 	crearMain(gramatica, analizador);
 	crearProcedimientos(gramatica, analizador);
@@ -73,8 +73,7 @@ void eliminarProduccionesLambda(gramatica_t g) {
 		cant++;
 	}
 	for (i = 0; i < cant; i++) {
-		if (g->producciones[i]->parteDerecha[0] == '-'
-				&& g->producciones[i]->parteIzquierda != g->simInicial) {
+		if (g->producciones[i]->parteDerecha[0] == '-') {
 			auxNT = g->producciones[i]->parteIzquierda;
 			for (j = 0; j < cant; j++) {
 				int qty = 0;
@@ -82,15 +81,22 @@ void eliminarProduccionesLambda(gramatica_t g) {
 						&& (qty = containsElem(g->producciones[j]->parteDerecha, g->producciones[i]->parteIzquierda))) {
 					while (qty > 0) {
 						char * pD = removeElem(g->producciones[j]->parteDerecha, auxNT, qty--);
+						/*if(strlen(pD)==0){
+							//pD = malloc(5*sizeof(char));
+							pD[0]='\\';
+							pD[1]='\0';
+						}*/
 						agregarProduccion(g, pD, g->producciones[j]->parteIzquierda);
 						cant++;
 					}
 					//g->producciones[j]->noTerminal = NULL;
 				}
 			}
-			eliminarProduccion(g, g->producciones[i]);
-			i--;
-			cant--;
+			if(g->producciones[i]->parteIzquierda != g->simInicial){
+				eliminarProduccion(g, g->producciones[i]);
+				i--;
+				cant--;
+			}
 		}
 	}
 }
@@ -157,6 +163,8 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "typedef int(*pt2Func)(int *, char *);\n");
 	fprintf(analizador, "char ** array;\n");
 	fprintf(analizador, "int logIndex = 0;\n");
+	fprintf(analizador, "int pDlen = 1;\n");
+	fprintf(analizador, "int pDIndex = 0;\n");
 	char * noTerminales = gramatica->noTerminales;
 	int index = 0;
 
@@ -208,20 +216,33 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 	fprintf(analizador, "int procedimiento%c(int * index, char * word) {\n",
 			noTerminal);
 	fprintf(analizador, "\tint noerror = 1;\n\n\n");
+	fprintf(analizador, "\tint flag = 0;\n");
 	fprintf(analizador, "\tint backup;\n");
-	while (produccionesDesdeNoTerm[index] != '\0') {
+	fprintf(analizador, "\tint pDlenbackup;\n");
+	fprintf(analizador, "\tint pDIndexbackup;\n");
+	while (produccionesDesdeNoTerm[index] != NULL) {
 		fprintf(analizador, "\tbackup = *index;\n");
+		fprintf(analizador, "\tpDlenbackup = pDlen;\n");
+		fprintf(analizador, "\tpDIndexbackup = pDIndex;\n");
 		fprintf(analizador, "\tadd(\"%c->%s\");\n", noTerminal,
 				produccionesDesdeNoTerm[index]->parteDerecha);
+		fprintf(analizador, "\tpDlen += %d;\n", strlen(produccionesDesdeNoTerm[index]->parteDerecha)-1);
 		fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
 				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tif(noerror){\n");
-		fprintf(analizador, "\t\treturn 1;\n");
+		fprintf(analizador, "\t\tif(backup == *index)\n");
+		fprintf(analizador, "\t\t\tflag = 1;\n");
+		fprintf(analizador, "\t\telse\n");
+		fprintf(analizador, "\t\t\treturn 1;\n");
 		fprintf(analizador, "\t}\n\n");
 		fprintf(analizador, "\tundo();\n");
 		fprintf(analizador, "\t*index = backup;\n");
+		fprintf(analizador, "\tpDlen = pDlenbackup;\n");
+		fprintf(analizador, "\tpDIndex = pDIndexbackup;\n");
 		index++;
 	}
+	fprintf(analizador, "\tif(flag)\n");
+	fprintf(analizador, "\t\treturn 1;");
 	fprintf(analizador, "\treturn 0;\n");
 	fprintf(analizador, "}\n\n");
 
@@ -232,7 +253,11 @@ void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 			"int procesar(int * index, char * word, char * seq) {\n");
 	fprintf(analizador, "\tif(seq[0] == \'-\') {\n");
 //	fprintf(analizador, "\t\t(*index)++;\n");
-	fprintf(analizador, "\t\treturn 1;\n");
+	fprintf(analizador, "\t\tpDlen--;\n");
+	fprintf(analizador, "\t\tif(pDlen==pDIndex && word[*index]!=\'\\0\')\n");
+	fprintf(analizador, "\t\t\treturn 0;\n");
+	fprintf(analizador, "\t\telse\n");
+	fprintf(analizador, "\t\t\treturn 1;\n");
 	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\tint seqIndex = 0;\n");
 	fprintf(analizador, "\tint (*fp) (int *, char*);\n");
@@ -240,6 +265,7 @@ void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "\t\tif(islower(seq[seqIndex])) {\n");
 	fprintf(analizador, "\t\t\tif(seq[seqIndex] == word[*index]) {\n");
 	fprintf(analizador, "\t\t\t\t(*index)++;seqIndex++;\n");
+	fprintf(analizador, "\t\t\t\tpDIndex++;\n");
 	fprintf(analizador, "\t\t\t} else {\n\t\t\t\t return 0;\n\t\t\t}\n");
 	fprintf(analizador, "\t\t} else if(isupper(seq[seqIndex])) {\n");
 	fprintf(analizador, "\t\t\tfp = funcionPara(seq[seqIndex]);\n");
@@ -290,7 +316,7 @@ produccion_t * produccionesPara(gramatica_t gramatica, char noTerminal) {
 	produccion_t * ret = malloc(5 * sizeof(produccion_t));
 	int retIndex = 0, prodIndex = 0;
 
-	while (producciones[prodIndex] != '\0') {
+	while (producciones[prodIndex] != NULL) {
 		if (retIndex % 5 == 0) {
 			realloc(ret, (retIndex + 5) * sizeof(produccion_t));
 		}
@@ -300,7 +326,7 @@ produccion_t * produccionesPara(gramatica_t gramatica, char noTerminal) {
 			prodIndex++;
 	}
 
-	ret[retIndex] = '\0';
+	ret[retIndex] = NULL;
 	return ret;
 }
 
