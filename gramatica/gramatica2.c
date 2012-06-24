@@ -78,21 +78,24 @@ void eliminarProduccionesLambda(gramatica_t g) {
 			for (j = 0; j < cant; j++) {
 				int qty = 0;
 				if (g->producciones[j]->parteDerecha[0] != '-'
-						&& (qty = containsElem(g->producciones[j]->parteDerecha, g->producciones[i]->parteIzquierda))) {
+						&& (qty = containsElem(g->producciones[j]->parteDerecha,
+								g->producciones[i]->parteIzquierda))) {
 					while (qty > 0) {
-						char * pD = removeElem(g->producciones[j]->parteDerecha, auxNT, qty--);
+						char * pD = removeElem(g->producciones[j]->parteDerecha,
+								auxNT, qty--);
 						/*if(strlen(pD)==0){
-							//pD = malloc(5*sizeof(char));
-							pD[0]='\\';
-							pD[1]='\0';
-						}*/
-						agregarProduccion(g, pD, g->producciones[j]->parteIzquierda);
+						 //pD = malloc(5*sizeof(char));
+						 pD[0]='\\';
+						 pD[1]='\0';
+						 }*/
+						agregarProduccion(g, pD,
+								g->producciones[j]->parteIzquierda);
 						cant++;
 					}
 					//g->producciones[j]->noTerminal = NULL;
 				}
 			}
-			if(g->producciones[i]->parteIzquierda != g->simInicial){
+			if (g->producciones[i]->parteIzquierda != g->simInicial) {
 				eliminarProduccion(g, g->producciones[i]);
 				i--;
 				cant--;
@@ -103,10 +106,10 @@ void eliminarProduccionesLambda(gramatica_t g) {
 
 char * removeElem(char * seq, char elem, int number) {
 	int i = 0, flag = 0, j = 0;
-	char * ret = malloc(5*sizeof(char));
+	char * ret = malloc(5 * sizeof(char));
 	while (seq[i] != '\0') {
-		if(j % 5 == 0) {
-			ret = realloc(ret, (j +5) * sizeof(char));
+		if (j % 5 == 0) {
+			ret = realloc(ret, (j + 5) * sizeof(char));
 		}
 		if (seq[i] == elem) {
 			number--;
@@ -115,7 +118,7 @@ char * removeElem(char * seq, char elem, int number) {
 			}
 		}
 		if (flag) {
-			ret[j++] = seq[i+1];
+			ret[j++] = seq[i + 1];
 		} else {
 			ret[j++] = seq[i];
 		}
@@ -179,6 +182,13 @@ void crearMain(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador, "void undo();\n");
 
 	fprintf(analizador, "int main(int argc, char ** argv) {\n");
+	fprintf(analizador, "\tif(argc == 1) {\n");
+	fprintf(
+			analizador,
+			"\t\tprintf(\"Debe ingresar una palabra para ser analizada. Si su intencion era ingresar la cadena lambda, debe ingresarla de la siguiente manera:\\n\");\n");
+	fprintf(analizador, "\t\tprintf(\"./ASDR \'\'\\n\");\n");
+	fprintf(analizador, "\t\treturn 1;\n");
+	fprintf(analizador, "\t}\n");
 	fprintf(analizador, "\tarray = malloc(10*sizeof(char *));\n");
 	fprintf(analizador, "\tint index = 0;\n\tchar * word = argv[1];\n");
 	fprintf(analizador, "\tif(procedimiento%c(&index, word)) {\n",
@@ -229,20 +239,22 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 		fprintf(analizador, "\tnodosHojabackup = nodosHoja;\n");
 		fprintf(analizador, "\tadd(\"%c->%s\");\n", noTerminal,
 				produccionesDesdeNoTerm[index]->parteDerecha);
-		fprintf(analizador, "\tpDlen += %d;\n", strlen(produccionesDesdeNoTerm[index]->parteDerecha)-1);
-		fprintf(analizador, "\tnodosHoja += %d;\n", contarTerminales(produccionesDesdeNoTerm[index]->parteDerecha));
+		fprintf(analizador, "\tpDlen += %d;\n",
+				strlen(produccionesDesdeNoTerm[index]->parteDerecha) - 1);
+		fprintf(analizador, "\tnodosHoja += %d;\n",
+				contarTerminales(produccionesDesdeNoTerm[index]->parteDerecha));
 //		fprintf(analizador, "\tprintf(\"%c->%s\\n\");\n", noTerminal, produccionesDesdeNoTerm[index]->parteDerecha);
 		//fprintf(analizador, "\tif(nodosHoja<=strlen(word)){\n");
-		if(produccionesDesdeNoTerm[index]->parteDerecha[0]!='-'){
+		if (produccionesDesdeNoTerm[index]->parteDerecha[0] != '-') {
 			fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
-				produccionesDesdeNoTerm[index]->parteDerecha);
+					produccionesDesdeNoTerm[index]->parteDerecha);
 			fprintf(analizador, "\tif(noerror){\n");
 			fprintf(analizador, "\t\tif(backup == *index)\n");
 			fprintf(analizador, "\t\t\tflag = 1;\n");
 			fprintf(analizador, "\t\telse\n");
 			fprintf(analizador, "\t\t\treturn 1;\n");
 			fprintf(analizador, "\t}\n");
-		}else{
+		} else {
 			fprintf(analizador, "\tflag = 1;\n");
 		}
 		//fprintf(analizador, "\t}\n\n");
@@ -549,17 +561,18 @@ int esProduccionValida(gramatica_t gramatica, noTerminal_t pIz,
 void imprimirProd(gramatica_t gramatica) {
 	int i = 0;
 	produccion_t * producciones = gramatica->producciones;
-	while(producciones[i] != '\0') {
-		printf("%c->%s\n", producciones[i]->parteIzquierda, producciones[i]->parteDerecha);
+	while (producciones[i] != '\0') {
+		printf("%c->%s\n", producciones[i]->parteIzquierda,
+				producciones[i]->parteDerecha);
 		i++;
 	}
 }
 
-int contarTerminales(char * string){
+int contarTerminales(char * string) {
 	int count = 0;
-	int i=0;
-	for( i=0 ; string[i]!='\0' ; i++){
-		if(islower(string[i]))
+	int i = 0;
+	for (i = 0; string[i] != '\0'; i++) {
+		if (islower(string[i]))
 			count++;
 	}
 	return count;
