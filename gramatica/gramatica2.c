@@ -52,7 +52,7 @@ gramatica_t nuevaGramatica(void) {
 }
 
 void crearAnalizador(gramatica_t gramatica) {
-	FILE * analizador = fopen("analizador.c", "w");
+	FILE * analizador = fopen("ASDR.c", "w");
 	printf("Producciones leidas:\n");
 	//imprimirProd(gramatica);
 	//eliminarProduccionesLambda(gramatica);

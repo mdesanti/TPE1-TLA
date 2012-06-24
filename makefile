@@ -1,5 +1,5 @@
 tp1 : tp
-	gcc -g -m32 -w -o  salida aux/tp.o aux/lex.o \
+	gcc -g -m32 -w -o  genASDR aux/tp.o aux/lex.o \
 	 aux/libreria.o aux/gramatica.o -lm
 tp : clean
 	mkdir aux
