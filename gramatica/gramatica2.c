@@ -231,7 +231,7 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 				produccionesDesdeNoTerm[index]->parteDerecha);
 		fprintf(analizador, "\tpDlen += %d;\n", strlen(produccionesDesdeNoTerm[index]->parteDerecha)-1);
 		fprintf(analizador, "\tnodosHoja += %d;\n", contarTerminales(produccionesDesdeNoTerm[index]->parteDerecha));
-		fprintf(analizador, "\tprintf(\"%c->%s\\n\");\n", noTerminal, produccionesDesdeNoTerm[index]->parteDerecha);
+//		fprintf(analizador, "\tprintf(\"%c->%s\\n\");\n", noTerminal, produccionesDesdeNoTerm[index]->parteDerecha);
 		//fprintf(analizador, "\tif(nodosHoja<=strlen(word)){\n");
 		if(produccionesDesdeNoTerm[index]->parteDerecha[0]!='-'){
 			fprintf(analizador, "\tnoerror = procesar(index, word, \"%s\");\n",
@@ -270,7 +270,7 @@ void crearProcedimiento(gramatica_t gramatica, FILE * analizador,
 void crearFuncionProcesar(gramatica_t gramatica, FILE * analizador) {
 	fprintf(analizador,
 			"int procesar(int * index, char * word, char * seq) {\n");
-	fprintf(analizador, "\tprintf(\"%%d\\t%%d\\n\", pDlen, pDIndex);\n");
+//	fprintf(analizador, "\tprintf(\"%%d\\t%%d\\n\", pDlen, pDIndex);\n");
 	fprintf(analizador, "\tif(nodosHoja>strlen(word))\n");
 	fprintf(analizador, "\t\treturn 0;\n");
 	fprintf(analizador, "\tint seqIndex = 0;\n");
